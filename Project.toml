@@ -1,6 +1,6 @@
 name = "QuantumCore"
 uuid = "5717a53b-5d69-4fa3-b976-0bf2f97ca1e5"
-authors = ["Stefan Krastanov <stefan@krastanov.org> and contributors"]
+authors = ["QuantumCore.jl contributors"]
 version = "0.1.0"
 
 [compat]
