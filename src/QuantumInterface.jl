@@ -1,4 +1,4 @@
-module QuantumCore
+module QuantumInterface
 
 function apply! end
 

@@ -1,4 +1,4 @@
-# QuantumCore
+# QuantumInterface
 
 This package is not meant for public use!
 

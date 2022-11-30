@@ -1,6 +1,6 @@
-using QuantumCore
+using QuantumInterface
 using Test
 
-@testset "QuantumCore.jl" begin
+@testset "QuantumInterface.jl" begin
     # Write your tests here.
 end
