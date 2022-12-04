@@ -13,6 +13,6 @@ This package contains formal and informal definitions of common interfaces used 
 - [`QuantumClifford.jl`](https://github.com/Krastanov/QuantumClifford.jl)
 - [`QSymbolics.jl`](https://github.com/Krastanov/QSymbolics.jl)
 - [`QuantumSavory.jl`](https://github.com/Krastanov/QuantumSavory.jl)
-- [`and others`]()
+- [`and others`](https://juliahub.com/ui/Packages/QuantumInterface/a9rji/?page=2)
 
-![](https://mermaid.ink/img/pako:eNqFU7tuwzAM_BVBc_IDHjo0WYOicIEuXhiLbgTo4eoRwAjy76HjxJZrOfUk3R15JC1eeG0F8oL_OGhP7GtfGUbfZwQTot5Zh2y7fXveP9oga_8OHmeyCV6KX-bbKdk01okVUdnpf71IQ9BD8gjIMHO_UXAHVoJfcUerpt6e2lWWyshyPh6HsVd8YvjAJa4zYGwpdZ4hqQMasbAah1BLV0cZZpa5_5JL8g1nbKKpg7SGafABHcPfCP09Tbj2chbUutUhqiCpGg1Kes281FFBsC7jUsLZuu5PqplN-vpSdfaBZGTjfHMKvuEaqU4paKEufUTFwwk1Vrygo8AGqJe-7itJIQZbdqbmRXARNzy2AgLuJVDjmhcNKE8oCkm9HoYlve_q9QYSWThP?type=png)
+![](https://mermaid.ink/img/pako:eNqFU7tuwzAM_BVDc_IDHjq0WToEReECXbwwEt0IsCRXjwBGkH8vHSe2VMuJJ_nuyCMl8sy4EchK9mOhOxZfu1oX9H0G0D6od-3RNsCx2G5f7uBH5yV3r-Aw0c7wUvw86Vsrm8ZY8UhZ9eqpK2kIukluARkmNZ0EV2Al-BF3MO3c5V27ylIZWc6Fw_gKNZsZNnKRawJMLcXOCRI7oBYLq-kSuLQ8SJ9Y5h4nl-QbTtgEzb00ulDg6N0K_A0w_McJ12ZoQa1b7UPrJVWjoJVOFU6q0II3NuNSwcnY_l-qxCYewVidHZCMbLrfnIJtmEKqUwrar_MQUTN_RIU1K-kosAHqZaj7QlII3lS95qz0NuCGhU6Ax50EalyxsoHWEYpCUq_7cWevq3v5A3RsPmc?type=png)
