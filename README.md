@@ -15,4 +15,37 @@ This package contains formal and informal definitions of common interfaces used 
 - [`QuantumSavory.jl`](https://github.com/Krastanov/QuantumSavory.jl)
 - [`and others`](https://juliahub.com/ui/Packages/QuantumInterface/a9rji/?page=2)
 
-![](https://mermaid.ink/img/pako:eNqFU7tuwzAM_BVDc_IDHjq0WToEReECXbwwEt0IsCRXjwBGkH8vHSe2VMuJJ_nuyCMl8sy4EchK9mOhOxZfu1oX9H0G0D6od-3RNsCx2G5f7uBH5yV3r-Aw0c7wUvw86Vsrm8ZY8UhZ9eqpK2kIukluARkmNZ0EV2Al-BF3MO3c5V27ylIZWc6Fw_gKNZsZNnKRawJMLcXOCRI7oBYLq-kSuLQ8SJ9Y5h4nl-QbTtgEzb00ulDg6N0K_A0w_McJ12ZoQa1b7UPrJVWjoJVOFU6q0II3NuNSwcnY_l-qxCYewVidHZCMbLrfnIJtmEKqUwrar_MQUTN_RIU1K-kosAHqZaj7QlII3lS95qz0NuCGhU6Ax50EalyxsoHWEYpCUq_7cWevq3v5A3RsPmc?type=png)
+```mermaid
+graph TD
+    QuantumInterface --> QuantumOpticsBase
+    QuantumInterface --> QuantumClifford
+    QuantumInterface --> QSymbolicsBase
+    QSymbolicsBase --> QSymbolicsOptics
+    QuantumClifford --> QuantumSavory
+    QuantumClifford --> QSymbolicsClifford
+    QSymbolicsBase --> QSymbolicsClifford
+    QSymbolicsBase --> QSymbolics
+    QSymbolicsClifford --> QSymbolics
+    QSymbolicsOptics --> QSymbolics
+    subgraph "Symbolics"
+       QSymbolicsBase
+       QSymbolicsOptics
+       QSymbolicsClifford
+       QSymbolics
+    end
+    subgraph "Clifford circuits"
+       QuantumClifford
+    end
+    QuantumOpticsBase ---> QuantumCumulants
+    subgraph "Wavefunction master equations"
+        QuantumOpticsBase --> qob_others[many other<br>special purpose<br>packages]
+        QuantumOptics
+    end
+    QuantumOpticsBase --> QuantumOptics
+    QuantumOpticsBase --> QSymbolicsOptics
+    subgraph "Multiformalism simulator"
+        QuantumSavory
+    end
+    QuantumOptics --> QuantumSavory
+    QSymbolics --> QuantumSavory
+```
