@@ -8,31 +8,25 @@ On the other hand, we do respect semantic versioning, so at worst you would be s
 
 This package contains formal and informal definitions of common interfaces used by:
 
-- [`QuantumOpticsBase.jl`](https://github.com/qojulia/QuantumOpticsBase.jl/)
-- [`QuantumOptics.jl`](https://github.com/qojulia/QuantumOptics.jl/)
-- [`QuantumClifford.jl`](https://github.com/Krastanov/QuantumClifford.jl)
-- [`QSymbolics.jl`](https://github.com/Krastanov/QSymbolics.jl)
-- [`QuantumSavory.jl`](https://github.com/Krastanov/QuantumSavory.jl)
+- [`QuantumOpticsBase.jl`](https://github.com/qojulia/QuantumOpticsBase.jl/) - a library defining data structures for Schroedinger-style quantum simulations (e.g. dense and sparse matrix operators and vector kets)
+- [`QuantumOptics.jl`](https://github.com/qojulia/QuantumOptics.jl/) - provides dynamic equations over types defined in `QuantumOpticsBase`
+- [`QuantumClifford.jl`](https://github.com/Krastanov/QuantumClifford.jl) - implements the typical stabilizer tableaux formalism
+- [`QuantumSymbolics.jl`](https://github.com/Krastanov/QuantumSymbolics.jl) - general purpose symbolic algebra for quantum information science, focusing on automatically transforming symbolic expressions into other formalisms (vectors, tableaux, etc)
+- [`QuantumSavory.jl`](https://github.com/Krastanov/QuantumSavory.jl) - a multi-formalism simulator building up on the other tools
 - [`and others`](https://juliahub.com/ui/Packages/QuantumInterface/a9rji/?page=2)
 
 ```mermaid
 graph TD
     QuantumInterface --> QuantumOpticsBase
     QuantumInterface --> QuantumClifford
-    QuantumInterface --> QSymbolicsBase
-    QSymbolicsBase --> QSymbolicsOptics
+    QuantumInterface --> QuantumSymbolics
     QuantumClifford --> QuantumSavory
-    QuantumClifford --> QSymbolicsClifford
-    QSymbolicsBase --> QSymbolicsClifford
-    QSymbolicsBase --> QSymbolics
-    QSymbolicsClifford --> QSymbolics
-    QSymbolicsOptics --> QSymbolics
+    QuantumClifford --> QSymbolicsExtensions
     subgraph "Symbolics"
-       QSymbolicsBase
-       QSymbolicsOptics
-       QSymbolicsClifford
-       QSymbolics
+       QuantumSymbolics
+       QSymbolicsExtensions[domain specific extensions]
     end
+    QuantumSymbolics --> QSymbolicsExtensions[domain specific extensions]
     subgraph "Clifford circuits"
        QuantumClifford
     end
@@ -42,10 +36,11 @@ graph TD
         QuantumOptics
     end
     QuantumOpticsBase --> QuantumOptics
-    QuantumOpticsBase --> QSymbolicsOptics
+    QuantumOpticsBase --> QSymbolicsExtensions
     subgraph "Multiformalism simulator"
         QuantumSavory
     end
     QuantumOptics --> QuantumSavory
-    QSymbolics --> QuantumSavory
+    QuantumSymbolics --> QuantumSavory
+    QSymbolicsExtensions --> QuantumSavory
 ```
