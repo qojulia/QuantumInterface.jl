@@ -59,7 +59,7 @@ exp(op::AbstractOperator) = throw(ArgumentError("exp() is not defined for this t
 
 Base.size(op::AbstractOperator) = (length(op.basis_l),length(op.basis_r))
 function Base.size(op::AbstractOperator, i::Int)
-    i < 1 && throw(ErrorException(lazy"dimension out of range, should be strictly positive, got $i"))
+    i < 1 && throw(ErrorException("dimension index is < 1"))
     i > 2 && return 1
     i==1 ? length(op.basis_l) : length(op.basis_r)
 end
