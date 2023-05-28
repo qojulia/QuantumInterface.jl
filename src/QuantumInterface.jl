@@ -1,11 +1,17 @@
 module QuantumInterface
 
+import Base: ==, +, -, *, /, ^, length, one, exp, conj, conj!, transpose, copy
+import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
+import Base: show, summary
+import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
+
 function apply! end
 
 function dagger end
 
 function directsum end
 const ⊕ = directsum
+directsum() = GenericBasis(0)
 
 function dm end
 
@@ -14,6 +20,8 @@ function embed end
 function entanglement_entropy end
 
 function expect end
+
+function identityoperator end
 
 function permutesystems end
 
@@ -41,9 +49,11 @@ function tensor_pow end # TODO should Base.^ be the same as tensor_pow?
 
 function traceout! end
 
+function variance end
+
 ##
 # Qubit specific
-#
+##
 
 function nqubits end
 
@@ -61,9 +71,6 @@ function projectZrand! end
 
 function reset_qubits! end
 
-##
-# Bases
-##
 
 include("bases.jl")
 include("abstract_types.jl")
