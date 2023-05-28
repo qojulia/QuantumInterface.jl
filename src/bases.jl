@@ -349,3 +349,49 @@ SpinBasis(spinnumber::Rational) = SpinBasis{spinnumber}(spinnumber)
 SpinBasis(spinnumber) = SpinBasis(convert(Rational{Int}, spinnumber))
 
 Base.:(==)(b1::SpinBasis, b2::SpinBasis) = b1.spinnumber==b2.spinnumber
+
+
+"""
+    SumBasis(b1, b2...)
+
+Similar to [`CompositeBasis`](@ref) but for the [`directsum`](@ref) (⊕)
+"""
+struct SumBasis{S,B} <: Basis
+    shape::S
+    bases::B
+end
+SumBasis(bases) = SumBasis(Int[length(b) for b in bases], bases)
+SumBasis(shape, bases::Vector) = (tmp = (bases...,); SumBasis(shape, tmp))
+SumBasis(bases::Vector) = SumBasis((bases...,))
+SumBasis(bases::Basis...) = SumBasis((bases...,))
+
+==(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
+==(b1::SumBasis, b2::SumBasis) = false
+length(b::SumBasis) = sum(b.shape)
+
+"""
+    directsum(b1::Basis, b2::Basis)
+
+Construct the [`SumBasis`](@ref) out of two sub-bases.
+"""
+directsum(b1::Basis, b2::Basis) = SumBasis(Int[length(b1); length(b2)], Basis[b1, b2])
+directsum(b::Basis) = b
+directsum(b::Basis...) = reduce(directsum, b)
+function directsum(b1::SumBasis, b2::Basis)
+    shape = [b1.shape;length(b2)]
+    bases = [b1.bases...;b2]
+    return SumBasis(shape, (bases...,))
+end
+function directsum(b1::Basis, b2::SumBasis)
+    shape = [length(b1);b2.shape]
+    bases = [b1;b2.bases...]
+    return SumBasis(shape, (bases...,))
+end
+function directsum(b1::SumBasis, b2::SumBasis)
+    shape = [b1.shape;b2.shape]
+    bases = [b1.bases...;b2.bases...]
+    return SumBasis(shape, (bases...,))
+end
+
+embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
+
