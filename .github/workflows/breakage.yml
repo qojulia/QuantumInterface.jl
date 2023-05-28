@@ -17,9 +17,9 @@ jobs:
         pkg: [
           "qojulia/QuantumOpticsBase.jl",
           "qojulia/QuantumOptics.jl",
-          "Krastanov/QSymbolics.jl",
-          "Krastanov/QuantumClifford.jl",
-          "Krastanov/QuantumSavory.jl",
+          "QuantumSavory/QuantumSymbolics.jl",
+          "QuantumSavory/QuantumClifford.jl",
+          "QuantumSavory/QuantumSavory.jl",
         ]
         pkgversion: [latest]
 
