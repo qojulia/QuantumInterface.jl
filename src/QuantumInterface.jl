@@ -75,4 +75,7 @@ function reset_qubits! end
 include("bases.jl")
 include("abstract_types.jl")
 
+
+include("sortedindices.jl")
+
 end # module
