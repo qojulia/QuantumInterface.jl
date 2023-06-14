@@ -1,5 +1,9 @@
 # News
 
+## v0.2.1
+
+- Implement `basis` method for superoperators.
+
 ## v0.2.0
 
 - Moving much more of `QuantumOptictsBase` to `QuantumInterface`, avoiding piracy. Now `QuantumInterface` takes care of abstract state/operator types and concrete bases, while `QuantumOpticsBase` has concrete Schroedinger-style implementations of concrete state/operator types. `QuantumClifford` gives tableax-style implementations of concrete state/operator types.

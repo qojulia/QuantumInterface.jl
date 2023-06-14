@@ -165,6 +165,7 @@ end
 Test if two objects have the same bases.
 """
 samebases(b1::Basis, b2::Basis) = b1==b2
+samebases(b1::Tuple{Basis, Basis}, b2::Tuple{Basis, Basis}) = b1==b2 # for checking superoperators
 
 """
     check_samebases(a, b)
