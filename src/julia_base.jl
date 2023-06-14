@@ -32,7 +32,7 @@ Base.broadcastable(x::StateVector) = x
 
 length(a::AbstractOperator) = length(a.basis_l)::Int*length(a.basis_r)::Int
 basis(a::AbstractOperator) = (check_samebases(a); a.basis_l)
-basis(a::AbstractSuperOperator) = (check_samebases(a); a.basis_l)
+basis(a::AbstractSuperOperator) = (check_samebases(a); a.basis_l[1])
 
 # Ensure scalar broadcasting
 Base.broadcastable(x::AbstractOperator) = Ref(x)
