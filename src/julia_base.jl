@@ -25,6 +25,8 @@ Base.eltype(x::StateVector) = eltype(x.data)
 # Broadcasting
 Base.broadcastable(x::StateVector) = x
 
+Base.adjoint(a::StateVector) = dagger(a)
+
 
 ##
 # Operators
