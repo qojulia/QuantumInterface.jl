@@ -1,5 +1,9 @@
 # News
 
+## v0.2.2
+
+- Move `Base.adjoint` from `QuantumOpticsBase` to `QuantumInterface`.
+
 ## v0.2.1
 
 - Implement `basis` method for superoperators.
