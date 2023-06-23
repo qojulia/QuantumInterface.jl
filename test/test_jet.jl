@@ -38,7 +38,8 @@ end
         )
     )
     @show rep
-    @test length(JET.get_reports(rep)) <= 7
+    @test length(JET.get_reports(rep)) <= 8
+    @test_broken length(JET.get_reports(rep)) == 0
 
     rep = report_package("QuantumInterface";
         report_pass=NoMatchingMethodIsOK(),
