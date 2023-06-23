@@ -1,5 +1,9 @@
 # News
 
+## v0.3.0
+
+- Redo some of the `identityoperator` methods.
+
 ## v0.2.2
 
 - Move `Base.adjoint` from `QuantumOpticsBase` to `QuantumInterface`.
