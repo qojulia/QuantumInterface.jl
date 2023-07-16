@@ -20,3 +20,6 @@ identityoperator(op::T) where {T<:AbstractOperator} = identityoperator(T, op.bas
 identityoperator(::Type{T}, ::Type{Any}, b1::Basis, b2::Basis) where T<:AbstractOperator = identityoperator(T, ComplexF64, b1, b2)
 
 identityoperator(b1::Basis, b2::Basis) = identityoperator(ComplexF64, b1, b2)
+
+"""Prepare the identity superoperator over a given space."""
+function identitysuperoperator end

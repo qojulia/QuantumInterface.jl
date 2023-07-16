@@ -1,5 +1,9 @@
 # News
 
+## v0.3.1
+
+- `identitysuperoperator` declared.
+
 ## v0.3.0
 
 - Redo some of the `identityoperator` methods.
