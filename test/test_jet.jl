@@ -1,4 +1,5 @@
 using QuantumInterface
+using Test
 using JET
 
 using JET: ReportPass, BasicPass, InferenceErrorReport, UncaughtExceptionReport, MethodErrorReport
