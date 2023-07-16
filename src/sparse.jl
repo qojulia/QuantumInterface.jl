@@ -17,19 +17,19 @@ function ptrace(x::AbstractSparseMatrix, shape_nd, indices) # A fairly QuantumOp
     shape_2d_after = (prod(shape_nd_after[1:N]), prod(shape_nd_after[N+1:end]))
     I_nd_after_max = CartesianIndex(shape_nd_after...)
     y = spzeros(eltype(x), shape_2d_after...)
-    for I in eachindex(x)::CartesianIndices{2} # Manual type assertions to help JET
+    for I in eachindex(x)::CartesianIndices # Manual type assertions to help JET
         println(I.I)
-        I_nd = sub2sub(shape_2d, shape_nd, I)::CartesianIndex{2}
+        I_nd = sub2sub(shape_2d, shape_nd, I)::CartesianIndex
         if I_nd.I[indices] != I_nd.I[indices .+ N]
             continue
         end
-        I_after = sub2sub(shape_nd_after, shape_2d_after, min(I_nd, I_nd_after_max)::CartesianIndex{2})
+        I_after = sub2sub(shape_nd_after, shape_2d_after, min(I_nd, I_nd_after_max)::CartesianIndex)
         y[I_after] += x[I]
     end
     y
 end
 
-function sub2sub(shape1, shape2, I::CartesianIndex{2})::CartesianIndex{2} # Manual type assertions to help JET
+function sub2sub(shape1, shape2, I::CartesianIndex)::CartesianIndex # Manual type assertions to help JET
     linearindex = LinearIndices(shape1)[I.I...]
     CartesianIndices(shape2)[linearindex]
 end
