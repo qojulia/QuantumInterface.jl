@@ -18,7 +18,6 @@ function ptrace(x::AbstractSparseMatrix, shape_nd, indices) # A fairly QuantumOp
     I_nd_after_max = CartesianIndex(shape_nd_after...)
     y = spzeros(eltype(x), shape_2d_after...)
     for I in eachindex(x)::CartesianIndices # Manual type assertions to help JET
-        println(I.I)
         I_nd = sub2sub(shape_2d, shape_nd, I)::CartesianIndex
         if I_nd.I[indices] != I_nd.I[indices .+ N]
             continue

@@ -1,5 +1,9 @@
 # News
 
+## v0.3.2
+
+- Cleanup - removing forgotten debug print statements.
+
 ## v0.3.1
 
 - `identitysuperoperator` declared.
