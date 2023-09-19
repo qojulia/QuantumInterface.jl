@@ -85,9 +85,9 @@ end
 
 permutesystems(a::AbstractOperator, perm) = arithmetic_unary_error("Permutations of subsystems", a)
 
-nsubsystems(s::Ket) = nsubsystems(s.basis)
-function nsubsystems(s::Operator)
-    s.basis_l == s.basis_r || throw(ArgumentError("`nsubsystem(::Operator)` is well defined only if the left and right bases are the same"))
+nsubsystems(s::AbstractKet) = nsubsystems(s.basis)
+function nsubsystems(s::AbstractOperator)
+    s.basis_l == s.basis_r || throw(ArgumentError("`nsubsystem(::AbstractOperator)` is well defined only if the left and right bases are the same"))
     nsubsystems(s.basis_l)
 end
 nsubsystems(b::CompositeBasis) = length(b.bases)
