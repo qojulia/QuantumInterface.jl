@@ -1,5 +1,9 @@
 # News
 
+## v0.3.3
+
+- Add `nsubsystems` for computing the number of subsystems in a state.
+
 ## v0.3.2
 
 - Cleanup - removing forgotten debug print statements.
