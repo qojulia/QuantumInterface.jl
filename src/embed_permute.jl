@@ -84,3 +84,8 @@ function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
 end
 
 permutesystems(a::AbstractOperator, perm) = arithmetic_unary_error("Permutations of subsystems", a)
+
+nsubsystems(s::AbstractKet) = nsubsystems(basis(s))
+nsubsystems(s::AbstractOperator) = nsubsystems(basis(s))
+nsubsystems(b::CompositeBasis) = length(b.bases)
+nsubsystems(b::Basis) = 1
