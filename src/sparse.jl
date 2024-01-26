@@ -5,7 +5,9 @@
 """
     sparse(op::AbstractOperator)
 
-Convert an arbitrary operator into a [`SparseOperator`](@ref).
+Convert an arbitrary operator into a sparse one.
+
+See also: QuantumOpticsBase.SparseOperator
 """
 sparse(a::AbstractOperator) = throw(ArgumentError("Direct conversion from $(typeof(a)) not implemented. Use sparse(full(op)) from QuantumOptics instead."))
 
