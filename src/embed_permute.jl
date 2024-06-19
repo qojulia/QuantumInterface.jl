@@ -46,6 +46,19 @@ embed(basis_l::CompositeBasis, basis_r::CompositeBasis, index::Integer, op::Abst
 embed(basis::CompositeBasis, indices, operators::Vector{T}) where {T<:AbstractOperator} = embed(basis, basis, indices, operators)
 embed(basis::CompositeBasis, indices, op::AbstractOperator) = embed(basis, basis, indices, op)
 
+"""
+    embed(basis::Basis, indices, ops::AbstractOperator)
+    
+Special case of the `embed` to handle embedding an operator `ops` into a single
+basis.
+"""
+function embed(basis::Basis, indices, ops::AbstractOperator)
+    if indices == 1 || indices == (1,) || indices == [1]
+        return ops
+    else
+        throw(ArgumentError("Invalid indices for single basis."))
+    end
+end
 
 """
     embed(basis1[, basis2], indices::Vector, operators::Vector)
