@@ -89,3 +89,4 @@ nsubsystems(s::AbstractKet) = nsubsystems(basis(s))
 nsubsystems(s::AbstractOperator) = nsubsystems(basis(s))
 nsubsystems(b::CompositeBasis) = length(b.bases)
 nsubsystems(b::Basis) = 1
+nsubsystems(::Nothing) = 1 # TODO consider removing this and reworking the functions that depend on it. E.g., a reason to have it when performing a project_traceout measurement on a state that contains only one subsystem
