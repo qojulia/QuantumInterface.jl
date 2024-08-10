@@ -53,3 +53,5 @@ function summary(stream::IO, x::AbstractOperator)
 end
 
 show(stream::IO, x::AbstractOperator) = summary(stream, x)
+
+traceout!(s::StateVector, i) = ptrace(s,i)

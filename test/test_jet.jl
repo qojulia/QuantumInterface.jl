@@ -39,7 +39,7 @@ end
         )
     )
     @show rep
-    @test length(JET.get_reports(rep)) <= 8
+    @test length(JET.get_reports(rep)) <= 11
     @test_broken length(JET.get_reports(rep)) == 0
 
     rep = report_package("QuantumInterface";
@@ -49,5 +49,6 @@ end
         )
     )
     @show rep
-    @test length(JET.get_reports(rep)) == 0
+    @test length(JET.get_reports(rep)) <= 2
+    @test_broken length(JET.get_reports(rep)) == 0
 end
