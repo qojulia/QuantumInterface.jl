@@ -73,6 +73,7 @@ function reset_qubits! end
 
 ##
 # Quantum optics specific
+##
 
 function coherentstate end
 
