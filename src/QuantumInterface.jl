@@ -5,6 +5,8 @@ import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
 import Base: show, summary
 import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
 
+function apply end
+
 function apply! end
 
 function dagger end
