@@ -1,5 +1,17 @@
 # News
 
+## v0.3.6 - 2024-09-08
+
+- Add `coherentstate`, `thermalstate`, `displace`, `squeeze`, `wigner`, previously from QuantumOptics.
+
+## v0.3.5
+
+- Fix piracies and ambiguities in `nsubsystems` accumulated downstream in QuantumSavory.
+
+## v0.3.4
+
+- Documentation build fix.
+
 ## v0.3.3
 
 - Add `nsubsystems` for computing the number of subsystems in a state.
