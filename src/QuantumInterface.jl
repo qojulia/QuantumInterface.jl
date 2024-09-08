@@ -71,6 +71,20 @@ function projectZrand! end
 
 function reset_qubits! end
 
+##
+# Quantum optics specific
+##
+
+function coherentstate end
+
+function thermalstate end
+
+function displace end
+
+function squeeze end
+
+function wigner end
+
 
 include("bases.jl")
 include("abstract_types.jl")
