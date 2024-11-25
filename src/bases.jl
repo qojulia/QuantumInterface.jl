@@ -1,9 +1,9 @@
 """
-Abstract base class for all specialized bases.
+Abstract type for all specialized bases.
 
-The Basis class is meant to specify a basis of the Hilbert space of the
-studied system. Besides basis specific information all subclasses must
-implement a shape variable which indicates the dimension of the used
+The `Basis` type is meant to specify a basis of the Hilbert space of the
+studied system. Besides basis specific information, all concrete subtypes must
+implement a shape field which indicates the dimension of the used
 Hilbert space. For a spin-1/2 Hilbert space this would be the
 vector `[2]`. A system composed of two spins would then have a
 shape vector `[2 2]`.
@@ -12,6 +12,26 @@ Composite systems can be defined with help of the [`CompositeBasis`](@ref)
 class.
 """
 abstract type Basis end
+
+"""
+Parametric composite type for all operator bases.
+
+See [TODO: reference operators.md in docs]
+"""
+struct OperatorBasis{BL<:Basis,BR<:Basis}
+    left::BL
+    right::BR
+end
+
+"""
+Parametric composite type for all superoperator bases.
+
+See [TODO: reference superoperators.md in docs]
+"""
+struct SuperOperatorBasis{BL<:OperatorBasis,BR<:OperatorBasis}
+    left::BL
+    right::BR
+end
 
 """
     length(b::Basis)
@@ -25,10 +45,23 @@ Base.length(b::Basis) = prod(b.shape)
 
 Return the basis of an object.
 
-If it's ambiguous, e.g. if an operator has a different left and right basis,
-an [`IncompatibleBases`](@ref) error is thrown.
+If it's ambiguous, e.g. if an operator or superoperator has a different
+left and right basis, an [`IncompatibleBases`](@ref) error is thrown.
 """
 function basis end
+
+basis(b::OperatorBasis) = (check_samebases(b); b.left)
+basis(b::SuperOperatorBasis) = (check_samebases(b); b.left.left)
+
+"""
+    fullbasis(a)
+
+
+Returns B where B<:Basis when typeof(a)<:StateVector.
+Returns B where B<:OperatorBasis when typeof(a)<:AbstractOperator.
+Returns B where B<:SuperOperatorBasis for typeof(a)<:AbstractSuperOperator.
+"""
+function fullbasis end
 
 
 """
@@ -80,13 +113,11 @@ contains another CompositeBasis.
 tensor(b1::Basis, b2::Basis) = CompositeBasis([length(b1); length(b2)], (b1, b2))
 tensor(b1::CompositeBasis, b2::CompositeBasis) = CompositeBasis([b1.shape; b2.shape], (b1.bases..., b2.bases...))
 function tensor(b1::CompositeBasis, b2::Basis)
-    N = length(b1.bases)
     shape = vcat(b1.shape, length(b2))
     bases = (b1.bases..., b2)
     CompositeBasis(shape, bases)
 end
 function tensor(b1::Basis, b2::CompositeBasis)
-    N = length(b2.bases)
     shape = vcat(length(b1), b2.shape)
     bases = (b1, b2.bases...)
     CompositeBasis(shape, bases)
@@ -160,21 +191,32 @@ macro samebases(ex)
 end
 
 """
+    samebases(a)
     samebases(a, b)
 
-Test if two objects have the same bases.
+Test if one object has the same left and right bases or
+if two objects have the same bases
 """
-samebases(b1::Basis, b2::Basis) = b1==b2
-samebases(b1::Tuple{Basis, Basis}, b2::Tuple{Basis, Basis}) = b1==b2 # for checking superoperators
+samebases(b1::Basis, b2::Basis) = (b1 == b2)
+samebases(b::OperatorBasis) = (b.left == b.right)
+samebases(b1::OperatorBasis, b2::OperatorBasis) = ((b1.left == b2.left) && (b1.right == b2.right))
+samebases(b::SuperOperatorBasis) = samebases(b.left, b.right)
+samebases(b1::SuperOperatorBasis, b2::SuperOperatorBasis) = (samebases(b1.left, b2.left) && samebases(b1.right, b2.right))
 
 """
+    check_samebases(a)
     check_samebases(a, b)
 
-Throw an [`IncompatibleBases`](@ref) error if the objects don't have
-the same bases.
+Throw an [`IncompatibleBases`](@ref) error if the two objects don't have
+the same bases or the one object doesn't have the same left and right bases.
 """
 function check_samebases(b1, b2)
     if BASES_CHECK[] && !samebases(b1, b2)
+        throw(IncompatibleBases())
+    end
+end
+function check_samebases(b)
+    if BASES_CHECK[] && !samebases(b)
         throw(IncompatibleBases())
     end
 end

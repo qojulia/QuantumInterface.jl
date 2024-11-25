@@ -1,5 +1,11 @@
 # News
 
+## v0.4.0 - 2024-11-26
+
+- Add `OperatorBasis` and `SuperOperatorBasis` along with correspond `fullbasis` function to obtain these from corresponding instances of these objects.
+- Change type parameters for `StateVector`, `AbstractKet` `AbstractBra` `AbstractOperator` `AbstractSuperOperator` to elimitate datatype parameter and enforce them carrying their respective `Basis`, `OperatorBasis`, or `SuperOperatorBasis`.
+
+
 ## v0.3.6 - 2024-09-08
 
 - Add `coherentstate`, `thermalstate`, `displace`, `squeeze`, `wigner`, previously from QuantumOptics.
