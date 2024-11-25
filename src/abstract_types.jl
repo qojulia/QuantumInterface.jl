@@ -21,9 +21,9 @@ in respect to a certain basis. These coefficients are stored in the
 `data` field and the basis is defined in the `basis`
 field.
 """
-abstract type StateVector{B,T} end
-abstract type AbstractKet{B,T} <: StateVector{B,T} end
-abstract type AbstractBra{B,T} <: StateVector{B,T} end
+abstract type StateVector end
+abstract type AbstractKet <: StateVector end
+abstract type AbstractBra <: StateVector end
 
 """
 Abstract base class for all operators.
@@ -36,7 +36,7 @@ For fast time evolution also at least the function
 implemented. Many other generic multiplication functions can be defined in
 terms of this function and are provided automatically.
 """
-abstract type AbstractOperator{BL,BR} end
+abstract type AbstractOperator end
 
 """
 Base class for all super operator classes.
@@ -52,4 +52,4 @@ A_{bl_1,bl_2} = S_{(bl_1,bl_2) ↔ (br_1,br_2)} B_{br_1,br_2}
 A_{br_1,br_2} = B_{bl_1,bl_2} S_{(bl_1,bl_2) ↔ (br_1,br_2)}
 ```
 """
-abstract type AbstractSuperOperator{B1,B2} end
+abstract type AbstractSuperOperator end
