@@ -46,3 +46,10 @@ normalize(op::AbstractOperator) = op/tr(op)
 In-place normalization of the given operator so that its `tr(x)` is one.
 """
 normalize!(op::AbstractOperator) = throw(ArgumentError("normalize! is not defined for this type of operator: $(typeof(op)).\n You may have to fall back to the non-inplace version 'normalize()'."))
+
+"""
+    transpose(op)
+
+Transpose of the given operator.
+"""
+transpose(a::AbstractOperator) = arithmetic_unary_error("Transpose", a)
