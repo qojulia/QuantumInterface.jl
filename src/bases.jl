@@ -221,38 +221,6 @@ function check_samebases(b)
     end
 end
 
-
-"""
-    multiplicable(a, b)
-
-Check if two objects are multiplicable.
-"""
-multiplicable(b1::Basis, b2::Basis) = b1==b2
-
-function multiplicable(b1::CompositeBasis, b2::CompositeBasis)
-    if !equal_shape(b1.shape,b2.shape)
-        return false
-    end
-    for i=1:length(b1.shape)
-        if !multiplicable(b1.bases[i], b2.bases[i])
-            return false
-        end
-    end
-    return true
-end
-
-"""
-    check_multiplicable(a, b)
-
-Throw an [`IncompatibleBases`](@ref) error if the objects are
-not multiplicable.
-"""
-function check_multiplicable(b1, b2)
-    if BASES_CHECK[] && !multiplicable(b1, b2)
-        throw(IncompatibleBases())
-    end
-end
-
 """
     reduced(a, indices)
 
