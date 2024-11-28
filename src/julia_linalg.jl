@@ -17,7 +17,7 @@ tr(x::AbstractOperator) = arithmetic_unary_error("Trace", x)
 
 Norm of the given bra or ket state.
 """
-norm(x::StateVector) = norm(x.data)
+norm(x::StateVector) = norm(x.data) # FIXME
 
 """
     normalize(x::StateVector)
@@ -31,7 +31,7 @@ normalize(x::StateVector) = x/norm(x)
 
 In-place normalization of the given bra or ket so that `norm(x)` is one.
 """
-normalize!(x::StateVector) = (normalize!(x.data); x)
+normalize!(x::StateVector) = (normalize!(x.data); x) # FIXME
 
 """
     normalize(op)

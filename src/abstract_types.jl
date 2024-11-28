@@ -1,54 +1,54 @@
 """
-Abstract base class for `Bra` and `Ket` states.
+Abstract type for `Bra` and `Ket` states.
 
-The state vector class stores the coefficients of an abstract state
-in respect to a certain basis. These coefficients are stored in the
-`data` field and the basis is defined in the `basis`
-field.
+The state vector type stores an abstract state with respect to a certain
+Hilbert space basis.
+All deriving types must define the `fullbasis` function which
+returns the state vector's underlying `Basis`.
 """
-abstract type StateVector{B,T} end
-abstract type AbstractKet{B,T} <: StateVector{B,T} end
-abstract type AbstractBra{B,T} <: StateVector{B,T} end
+abstract type StateVector{B<:Basis} end
+abstract type AbstractKet{B} <: StateVector{B} end
+abstract type AbstractBra{B} <: StateVector{B} end
 
 """
-Abstract base class for all operators.
+Abstract type for all operators which represent linear maps between two
+Hilbert spaces with respect to a given basis in each space.
 
-All deriving operator classes have to define the fields
-`basis_l` and `basis_r` defining the left and right side bases.
+All deriving operator types must define the `fullbasis` function which
+returns the operator's underlying `OperatorBasis`.
 
 For fast time evolution also at least the function
 `mul!(result::Ket,op::AbstractOperator,x::Ket,alpha,beta)` should be
 implemented. Many other generic multiplication functions can be defined in
 terms of this function and are provided automatically.
+
+See [TODO: reference operators.md in docs]
 """
-abstract type AbstractOperator{BL,BR} end
+abstract type AbstractOperator{B<:OperatorBasis} end
 
 """
-Base class for all super operator classes.
+Abstract type for all super-operators which represent linear maps between two
+operator spaces with respect to a given basis for each space.
 
-Super operators are bijective mappings from operators given in one specific
-basis to operators, possibly given in respect to another, different basis.
-To embed super operators in an algebraic framework they are defined with a
-left hand basis `basis_l` and a right hand basis `basis_r` where each of
-them again consists of a left and right hand basis.
-```math
-A_{bl_1,bl_2} = S_{(bl_1,bl_2) ↔ (br_1,br_2)} B_{br_1,br_2}
-\\\\
-A_{br_1,br_2} = B_{bl_1,bl_2} S_{(bl_1,bl_2) ↔ (br_1,br_2)}
+All deriving operator types must define the `fullbasis` function which
+returns the operator's underlying `SuperOperatorBasis`.
+
+See [TODO: reference superoperators.md in docs]
 ```
 """
-abstract type AbstractSuperOperator{B1,B2} end
+abstract type AbstractSuperOperator{B<:SuperOperatorBasis} end
 
 function summary(stream::IO, x::AbstractOperator)
-    print(stream, "$(typeof(x).name.name)(dim=$(length(x.basis_l))x$(length(x.basis_r)))\n")
-    if samebases(x)
+    b = fullbasis(x)
+    print(stream, "$(typeof(x).name.name)(dim=$(length(b.left))x$(length(b.right)))\n")
+    if samebases(b)
         print(stream, "  basis: ")
-        show(stream, basis(x))
+        show(stream, basis(b))
     else
         print(stream, "  basis left:  ")
-        show(stream, x.basis_l)
+        show(stream, b.left)
         print(stream, "\n  basis right: ")
-        show(stream, x.basis_r)
+        show(stream, b.right)
     end
 end
 

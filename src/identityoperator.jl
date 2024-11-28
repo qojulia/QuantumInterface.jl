@@ -11,10 +11,12 @@ type which has to a subtype of [`AbstractOperator`](@ref) as well as the number 
 to be used in the identity matrix.
 """
 identityoperator(::Type{T}, ::Type{S}, b1::Basis, b2::Basis) where {T<:AbstractOperator,S} = throw(ArgumentError("Identity operator not defined for operator type $T."))
+identityoperator(::Type{T}, ::Type{S}, b::OperatorBasis) where {T<:AbstractOperator,S} = identityoperator(T,S,b.left,b.right)
 identityoperator(::Type{T}, ::Type{S}, b::Basis) where {T<:AbstractOperator,S} = identityoperator(T,S,b,b)
-identityoperator(::Type{T}, bases::Basis...) where T<:AbstractOperator = identityoperator(T,eltype(T),bases...)
+identityoperator(::Type{T}, b::OperatorBasis) where {T<:AbstractOperator} = identityoperator(T,eltype(T),b)
+identityoperator(::Type{T}, bases::Basis...) where {T<:AbstractOperator} = identityoperator(T,eltype(T),bases...)
 identityoperator(b::Basis) = identityoperator(ComplexF64,b)
-identityoperator(op::T) where {T<:AbstractOperator} = identityoperator(T, op.basis_l, op.basis_r)
+identityoperator(op::T) where {T<:AbstractOperator} = identityoperator(T, fullbasis(op))
 
 # Catch case where eltype cannot be inferred from type; this is a bit hacky
 identityoperator(::Type{T}, ::Type{Any}, b1::Basis, b2::Basis) where T<:AbstractOperator = identityoperator(T, ComplexF64, b1, b2)
