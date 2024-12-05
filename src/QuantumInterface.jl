@@ -1,14 +1,33 @@
 module QuantumInterface
 
-import Base: ==, +, -, *, /, ^, length, one, exp, conj, conj!, transpose, copy
-import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
-import Base: show, summary
-import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
+##
+# Basis specific
+##
+
+"""
+    basis(a)
+
+Return the basis of an object.
+
+If it's ambiguous, e.g. if an operator has a different left and right basis,
+an [`IncompatibleBases`](@ref) error is thrown.
+"""
+function basis end
+
+##
+# Standard methods
+##
 
 function apply! end
 
 function dagger end
 
+"""
+    directsum(x, y, z...)
+
+Direct sum of the given objects. Alternatively, the unicode
+symbol ⊕ (\\oplus) can be used.
+"""
 function directsum end
 const ⊕ = directsum
 directsum() = GenericBasis(0)
@@ -86,8 +105,9 @@ function squeeze end
 function wigner end
 
 
-include("bases.jl")
 include("abstract_types.jl")
+include("bases.jl")
+include("show.jl")
 
 include("linalg.jl")
 include("tensor.jl")

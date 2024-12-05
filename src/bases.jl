@@ -1,34 +1,9 @@
 """
-Abstract base class for all specialized bases.
-
-The Basis class is meant to specify a basis of the Hilbert space of the
-studied system. Besides basis specific information all subclasses must
-implement a shape variable which indicates the dimension of the used
-Hilbert space. For a spin-1/2 Hilbert space this would be the
-vector `[2]`. A system composed of two spins would then have a
-shape vector `[2 2]`.
-
-Composite systems can be defined with help of the [`CompositeBasis`](@ref)
-class.
-"""
-abstract type Basis end
-
-"""
     length(b::Basis)
 
 Total dimension of the Hilbert space.
 """
 Base.length(b::Basis) = prod(b.shape)
-
-"""
-    basis(a)
-
-Return the basis of an object.
-
-If it's ambiguous, e.g. if an operator has a different left and right basis,
-an [`IncompatibleBases`](@ref) error is thrown.
-"""
-function basis end
 
 
 """
@@ -366,9 +341,9 @@ SumBasis(shape, bases::Vector) = (tmp = (bases...,); SumBasis(shape, tmp))
 SumBasis(bases::Vector) = SumBasis((bases...,))
 SumBasis(bases::Basis...) = SumBasis((bases...,))
 
-==(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
-==(b1::SumBasis, b2::SumBasis) = false
-length(b::SumBasis) = sum(b.shape)
+Base.:(==)(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
+Base.:(==)(b1::SumBasis, b2::SumBasis) = false
+Base.length(b::SumBasis) = sum(b.shape)
 
 """
     directsum(b1::Basis, b2::Basis)
@@ -392,63 +367,4 @@ function directsum(b1::SumBasis, b2::SumBasis)
     shape = [b1.shape;b2.shape]
     bases = [b1.bases...;b2.bases...]
     return SumBasis(shape, (bases...,))
-end
-
-embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
-
-##
-# show methods
-##
-
-function show(stream::IO, x::GenericBasis)
-    if length(x.shape) == 1
-        write(stream, "Basis(dim=$(x.shape[1]))")
-    else
-        s = replace(string(x.shape), " " => "")
-        write(stream, "Basis(shape=$s)")
-    end
-end
-
-function show(stream::IO, x::CompositeBasis)
-    write(stream, "[")
-    for i in 1:length(x.bases)
-        show(stream, x.bases[i])
-        if i != length(x.bases)
-            write(stream, " ⊗ ")
-        end
-    end
-    write(stream, "]")
-end
-
-function show(stream::IO, x::SpinBasis)
-    d = denominator(x.spinnumber)
-    n = numerator(x.spinnumber)
-    if d == 1
-        write(stream, "Spin($n)")
-    else
-        write(stream, "Spin($n/$d)")
-    end
-end
-
-function show(stream::IO, x::FockBasis)
-    if iszero(x.offset)
-        write(stream, "Fock(cutoff=$(x.N))")
-    else
-        write(stream, "Fock(cutoff=$(x.N), offset=$(x.offset))")
-    end
-end
-
-function show(stream::IO, x::NLevelBasis)
-    write(stream, "NLevel(N=$(x.N))")
-end
-
-function show(stream::IO, x::SumBasis)
-    write(stream, "[")
-    for i in 1:length(x.bases)
-        show(stream, x.bases[i])
-        if i != length(x.bases)
-            write(stream, " ⊕ ")
-        end
-    end
-    write(stream, "]")
 end
