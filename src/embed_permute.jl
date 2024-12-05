@@ -67,8 +67,8 @@ function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
     ops_sb = [x[2] for x in idxop_sb]
 
     for (idxsb, opsb) in zip(indices_sb, ops_sb)
-        (opsb.basis_l == basis_l.bases[idxsb]) || throw(IncompatibleBases())
-        (opsb.basis_r == basis_r.bases[idxsb]) || throw(IncompatibleBases())
+        (opsb.basis_l == basis_l.bases[idxsb]) || throw(IncompatibleBases()) # FIXME issue #12
+        (opsb.basis_r == basis_r.bases[idxsb]) || throw(IncompatibleBases()) # FIXME issue #12
     end
 
     S = length(operators) > 0 ? mapreduce(eltype, promote_type, operators) : Any
@@ -83,10 +83,20 @@ function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
     return embed_op
 end
 
-permutesystems(a::AbstractOperator, perm) = arithmetic_unary_error("Permutations of subsystems", a)
+embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
 
-nsubsystems(s::AbstractKet) = nsubsystems(basis(s))
-nsubsystems(s::AbstractOperator) = nsubsystems(basis(s))
-nsubsystems(b::CompositeBasis) = length(b.bases)
-nsubsystems(b::Basis) = 1
-nsubsystems(::Nothing) = 1 # TODO Exists because of QuantumSavory; Consider removing this and reworking the functions that depend on it. E.g., a reason to have it when performing a project_traceout measurement on a state that contains only one subsystem
+"""
+    permutesystems(a, perm)
+
+Change the ordering of the subsystems of the given object.
+
+For a permutation vector `[2,1,3]` and a given object with basis `[b1, b2, b3]`
+this function results in `[b2, b1, b3]`.
+"""
+function permutesystems(b::CompositeBasis, perm)
+    @assert length(b.bases) == length(perm)
+    @assert isperm(perm)
+    CompositeBasis(b.shape[perm], b.bases[perm])
+end
+
+permutesystems(a::AbstractOperator, perm) = arithmetic_unary_error("Permutations of subsystems", a)
