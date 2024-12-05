@@ -14,6 +14,32 @@ an [`IncompatibleBases`](@ref) error is thrown.
 """
 function basis end
 
+"""
+    fullbasis(a)
+
+Return the full basis of an object.
+
+Returns subtype of `Basis` when a is a subtype of `StateVector`.
+Returns a subtype of `OperatorBasis` a is a subtype of `AbstractOperator`.
+Returns a subtype of `SuperOperatorBasis` when a is a subtype of `AbstractSuperOperator`.
+"""
+function fullbasis end
+
+"""
+    length(b::Basis)
+
+Total dimension of the Hilbert space.
+"""
+function length end
+
+function bases end
+
+function spinnumber end
+
+function cutoff end
+
+function offset end
+
 ##
 # Standard methods
 ##

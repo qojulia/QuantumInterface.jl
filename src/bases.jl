@@ -39,6 +39,7 @@ end
 CompositeBasis(bases) = CompositeBasis([length(b) for b ∈ bases], bases)
 CompositeBasis(bases::Basis...) = CompositeBasis((bases...,))
 CompositeBasis(bases::Vector) = CompositeBasis((bases...,))
+bases(b::CompositeBasis) = b.bases
 
 Base.:(==)(b1::T, b2::T) where T<:CompositeBasis = equal_shape(b1.shape, b2.shape)
 
@@ -258,6 +259,8 @@ struct FockBasis{T} <: Basis
         new{T}([N-offset+1], N, offset)
     end
 end
+cutoff(b::FockBasis) = b.N
+offset(b::FockBasis) = b.offset
 
 Base.:(==)(b1::FockBasis, b2::FockBasis) = (b1.N==b2.N && b1.offset==b2.offset)
 
@@ -323,6 +326,7 @@ struct SpinBasis{S,T} <: Basis
 end
 SpinBasis(spinnumber::Rational) = SpinBasis{spinnumber}(spinnumber)
 SpinBasis(spinnumber) = SpinBasis(convert(Rational{Int}, spinnumber))
+spinnumber(b::SpinBasis) = b.spinnumber
 
 Base.:(==)(b1::SpinBasis, b2::SpinBasis) = b1.spinnumber==b2.spinnumber
 
