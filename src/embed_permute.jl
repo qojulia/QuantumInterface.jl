@@ -67,8 +67,8 @@ function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
     ops_sb = [x[2] for x in idxop_sb]
 
     for (idxsb, opsb) in zip(indices_sb, ops_sb)
-        (opsb.basis_l == basis_l.bases[idxsb]) || throw(IncompatibleBases())
-        (opsb.basis_r == basis_r.bases[idxsb]) || throw(IncompatibleBases())
+        (opsb.basis_l == basis_l.bases[idxsb]) || throw(IncompatibleBases()) # FIXME issue #12
+        (opsb.basis_r == basis_r.bases[idxsb]) || throw(IncompatibleBases()) # FIXME issue #12
     end
 
     S = length(operators) > 0 ? mapreduce(eltype, promote_type, operators) : Any
@@ -82,6 +82,8 @@ function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
 
     return embed_op
 end
+
+embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
 
 permutesystems(a::AbstractOperator, perm) = arithmetic_unary_error("Permutations of subsystems", a)
 
