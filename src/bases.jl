@@ -118,8 +118,6 @@ Exception that should be raised for an illegal algebraic operation.
 """
 mutable struct IncompatibleBases <: Exception end
 
-const BASES_CHECK = Ref(true)
-
 """
     @samebases
 

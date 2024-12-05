@@ -44,6 +44,91 @@ function offset end
 # Standard methods
 ##
 
+"""
+    multiplicable(a, b)
+
+Check if any two subtypes of `StateVector`, `AbstractOperator`,
+or `AbstractSuperOperator` can be multiplied in the given order.
+
+Spcefically this checks whether the right basis of a is equal
+to the left basis of b
+"""
+function multiplicable end
+
+"""
+    check_multiplicable(a, b)
+
+Throw an [`IncompatibleBases`](@ref) error if the objects are
+not multiplicable as determined by `multiplicable(a, b)`.
+
+If the macro `@compatiblebases` is used anywhere up the call stack,
+this check is disabled.
+"""
+function check_multiplicable end
+
+"""
+    addible(a, b)
+
+Check if any two subtypes of `StateVector`, `AbstractOperator`,
+or `AbstractSuperOperator` can be added together.
+
+Spcefically this checks whether the left basis of a is equal
+to the left basis of b and whether the right basis of a is equal
+to the right basis of b.
+"""
+function addible end
+
+"""
+    check_addible(a, b)
+
+Throw an [`IncompatibleBases`](@ref) error if the objects are
+not addible as determined by `addible(a, b)`.
+
+If the macro `@compatiblebases` is used anywhere up the call stack,
+this check is disabled.
+"""
+function check_addible end
+
+"""
+    issquare(a)
+
+Check if any two subtypes of `StateVector`, `AbstractOperator`,
+or `AbstractSuperOperator` are square.
+
+Spcefically this checks whether the left basis of a is equal
+to the right basis of a.
+For subtypes of `StateVector` this is always false.
+"""
+function addible end
+
+"""
+    check_issquare(a, b)
+
+Throw an [`IncompatibleBases`](@ref) error if the objects are
+not addible as determined by `addible(a, b)`.
+
+If the macro `@compatiblebases` is used anywhere up the call stack,
+this check is disabled.
+"""
+function check_addible end
+
+const BASES_CHECK = Ref(true)
+
+"""
+    @compatiblebases
+
+Macro to skip checks for compatible bases. Useful for `*`, `expect` and similar
+functions.
+"""
+macro compatiblebases(ex)
+    return quote
+        BASES_CHECK.x = false
+        local val = $(esc(ex))
+        BASES_CHECK.x = true
+        val
+    end
+end
+
 function apply! end
 
 function dagger end
