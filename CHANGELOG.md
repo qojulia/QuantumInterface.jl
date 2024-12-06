@@ -1,5 +1,9 @@
 # News
 
+## v0.3.7 - 2024-12-05
+
+- Rename `PauliBasis` to `NQubitBasis` with warning, and add deprecation to `equal_bases`.
+
 ## v0.3.6 - 2024-09-08
 
 - Add `coherentstate`, `thermalstate`, `displace`, `squeeze`, `wigner`, previously from QuantumOptics.

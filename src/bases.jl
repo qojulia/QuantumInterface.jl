@@ -65,23 +65,6 @@ function equal_shape(a, b)
     return true
 end
 
-"""
-    equal_bases(a, b)
-
-Check if two subbases vectors are identical.
-"""
-function equal_bases(a, b)
-    if a===b
-        return true
-    end
-    for i=1:length(a)
-        if a[i]!=b[i]
-            return false
-        end
-    end
-    return true
-end
-
 ##
 # Common bases
 ##
@@ -126,25 +109,23 @@ end
 
 Base.:(==)(b1::NLevelBasis, b2::NLevelBasis) = b1.N == b2.N
 
-
 """
-    PauliBasis(num_qubits::Int)
+    NQubitBasis(num_qubits::Int)
 
 Basis for an N-qubit space where `num_qubits` specifies the number of qubits.
-The dimension of the basis is 2²ᴺ.
+The dimension of the basis is 2ᴺ.
 """
-struct PauliBasis{S,B} <: Basis
+struct NQubitBasis{S,B} <: Basis
     shape::S
     bases::B
-    function PauliBasis(num_qubits::T) where {T<:Integer}
+    function NQubitBasis(num_qubits::T) where {T<:Integer}
         shape = [2 for _ in 1:num_qubits]
         bases = Tuple(SpinBasis(1//2) for _ in 1:num_qubits)
         return new{typeof(shape),typeof(bases)}(shape, bases)
     end
 end
 
-Base.:(==)(pb1::PauliBasis, pb2::PauliBasis) = length(pb1.bases) == length(pb2.bases)
-
+Base.:(==)(pb1::NQubitBasis, pb2::NQubitBasis) = length(pb1.bases) == length(pb2.bases)
 
 """
     SpinBasis(n)

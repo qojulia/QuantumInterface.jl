@@ -1,5 +1,5 @@
 using Test
-using QuantumInterface: tensor, ⊗, ptrace, reduced, permutesystems, equal_bases, multiplicable
+using QuantumInterface: tensor, ⊗, ptrace, reduced, permutesystems, multiplicable
 using QuantumInterface: GenericBasis, CompositeBasis, NLevelBasis, FockBasis
 
 @testset "basis" begin
@@ -49,7 +49,7 @@ comp1 = tensor(b1, b2, b3)
 comp2 = tensor(b2, b1, b3)
 @test permutesystems(comp1, [2,1,3]) == comp2
 
-@test !equal_bases([b1, b2], [b1, b3])
+@test [b1, b2] !== [b1, b3]
 @test !multiplicable(comp1, b1 ⊗ b2 ⊗ NLevelBasis(prod(b3.shape)))
 
 end # testset

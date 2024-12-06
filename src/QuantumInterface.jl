@@ -126,5 +126,6 @@ include("julia_linalg.jl")
 include("sparse.jl")
 
 include("sortedindices.jl")
+include("deprecated.jl")
 
 end # module
