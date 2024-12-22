@@ -1,6 +1,5 @@
 function express end
 
-express(obj) = obj
 express(obj) = express(obj, QuantumOpticsRepr()) # The default representation
 
 """An abstract type for the supported representation of quantum objects."""
