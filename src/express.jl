@@ -1,5 +1,7 @@
 function express end
 
+express(state) = state
+
 """An abstract type for the supported representation of quantum objects."""
 abstract type AbstractRepresentation end
 
