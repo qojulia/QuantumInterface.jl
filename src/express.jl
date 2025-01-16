@@ -23,7 +23,7 @@ express(s, repr::AbstractRepresentation) = express(s, repr, UseAsState())
 ##
 
 """Representation using kets, bras, density matrices, and superoperators governed by `QuantumOptics.jl`."""
-@kwdef struct QuantumOpticsRepr <: AbstractRepresentation 
+Base.@kwdef struct QuantumOpticsRepr <: AbstractRepresentation 
     cutoff::Int = 2
 end
 """Similar to `QuantumOpticsRepr`, but using trajectories instead of superoperators."""
