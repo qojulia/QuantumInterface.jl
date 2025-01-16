@@ -7,16 +7,16 @@ for formalism-specific cases, e.g., for `QuantumCliffordRepr`.
 """
 function express end
 
-express(obj) = express(obj, QuantumOpticsRepr()) # The default representation
-express(s::Number, repr::AbstractRepresentation, use::AbstractUse) = s
-express(s, repr::AbstractRepresentation) = express(s, repr, UseAsState())
-
 """An abstract type for the supported representation of quantum objects."""
 abstract type AbstractRepresentation end
 abstract type AbstractUse end
 struct UseAsState <: AbstractUse end
 struct UseAsOperation <: AbstractUse end
 struct UseAsObservable <: AbstractUse end
+
+express(obj) = express(obj, QuantumOpticsRepr()) # The default representation
+express(s::Number, repr::AbstractRepresentation, use::AbstractUse) = s
+express(s, repr::AbstractRepresentation) = express(s, repr, UseAsState())
 
 ##
 # Commonly used representations -- interfaces for each one defined in separate packages
