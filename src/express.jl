@@ -4,6 +4,10 @@ express(obj) = express(obj, QuantumOpticsRepr()) # The default representation
 
 """An abstract type for the supported representation of quantum objects."""
 abstract type AbstractRepresentation end
+abstract type AbstractUse end
+struct UseAsState <: AbstractUse end
+struct UseAsOperation <: AbstractUse end
+struct UseAsObservable <: AbstractUse end
 
 ##
 # Commonly used representations -- interfaces for each one defined in separate packages
