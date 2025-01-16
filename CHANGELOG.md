@@ -1,5 +1,9 @@
 # News
 
+## v0.3.7 - 2025-01-16
+
+- Migrate `express` functionalities and representation types from QuantumSymbolics.
+
 ## v0.3.6 - 2024-09-08
 
 - Add `coherentstate`, `thermalstate`, `displace`, `squeeze`, `wigner`, previously from QuantumOptics.
