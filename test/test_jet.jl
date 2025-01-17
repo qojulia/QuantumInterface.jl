@@ -9,7 +9,7 @@ using JET: ReportPass, DefinitionAnalysisPass, BasicPass, InferenceErrorReport, 
 # TODO find a more fine-grained way to check these.
 struct NoMatchingMethodIsOK <: ReportPass end
 
-# ignores `UncaughtExceptionReport` and `MethodErrorReport` analyzed by `JETAnalyzer`
+# ignores `MethodErrorReport` analyzed by `JETAnalyzer`
 (::NoMatchingMethodIsOK)(::Type{MethodErrorReport}, @nospecialize(_...)) = return
 
 function (::NoMatchingMethodIsOK)(report_type::Type{<:InferenceErrorReport}, @nospecialize(args...))
