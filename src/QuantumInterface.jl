@@ -85,6 +85,15 @@ function squeeze end
 
 function wigner end
 
+##
+# Metrics
+##
+
+function entropy_vn end
+
+function fidelity end
+
+function logarithmic_negativity end
 
 include("bases.jl")
 include("abstract_types.jl")
