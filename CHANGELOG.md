@@ -1,5 +1,8 @@
 # News
 
+## v0.3.8 - 2025-03-08
+- Introduce `metrics.jl` file for metric declarations.
+
 ## v0.3.7 - 2025-01-16
 
 - Migrate `express` functionalities and representation types from QuantumSymbolics.
