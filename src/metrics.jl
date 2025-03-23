@@ -10,7 +10,8 @@ wherein it is understood that ``0 \\log(0) \\equiv 0``.
 Consult specific implementation for function arguments and logarithmic basis.
 """
 function entropy_vn end
-
+# avoids causing a breaking change in QuantumOpticsBase.jl
+entropy_vn(::StateVector; kwargs...) = 0
 """
 Calculate the joint fidelity of two density operators, defined as
 
