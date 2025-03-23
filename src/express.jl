@@ -30,3 +30,7 @@ end
 struct QuantumMCRepr <: AbstractRepresentation end
 """Representation using tableaux governed by `QuantumClifford.jl`"""
 struct CliffordRepr <: AbstractRepresentation end
+"""Representation using Gaussian phase space formalism governed by `Gabs.jl`."""
+struct GabsRepr{B} <: AbstractRepresentation 
+    basis::B
+end
