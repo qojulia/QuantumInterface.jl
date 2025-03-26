@@ -151,21 +151,6 @@ function check_multiplicable(b1, b2)
     end
 end
 
-"""
-    permutesystems(a, perm)
-
-Change the ordering of the subsystems of the given object.
-
-For a permutation vector `[2,1,3]` and a given object with basis `[b1, b2, b3]`
-this function results in `[b2, b1, b3]`.
-"""
-function permutesystems(b::CompositeBasis, perm)
-    @assert length(b.bases) == length(perm)
-    @assert isperm(perm)
-    CompositeBasis(b.shape[perm], b.bases[perm])
-end
-
-
 ##
 # Common bases
 ##
@@ -275,4 +260,3 @@ Base.:(==)(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
 Base.:(==)(b1::SumBasis, b2::SumBasis) = false
 Base.length(b::SumBasis) = sum(b.shape)
 
-embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
