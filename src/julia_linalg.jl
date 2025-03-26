@@ -1,3 +1,5 @@
+import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
+
 """
     ishermitian(op::AbstractOperator)
 

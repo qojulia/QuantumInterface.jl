@@ -1,8 +1,11 @@
+import Base: +, -, *, /, ^, length, exp, conj, conj!, adjoint, transpose, copy
+
 # Common error messages
 arithmetic_unary_error(funcname, x::AbstractOperator) = throw(ArgumentError("$funcname is not defined for this type of operator: $(typeof(x)).\nTry to convert to another operator type first with e.g. dense() or sparse()."))
 arithmetic_binary_error(funcname, a::AbstractOperator, b::AbstractOperator) = throw(ArgumentError("$funcname is not defined for this combination of types of operators: $(typeof(a)), $(typeof(b)).\nTry to convert to a common operator type first with e.g. dense() or sparse()."))
 addnumbererror() = throw(ArgumentError("Can't add or subtract a number and an operator. You probably want 'op + identityoperator(op)*x'."))
 
+dagger(a::AbstractOperator) = arithmetic_unary_error("Hermitian conjugate", a)
 
 ##
 # States
@@ -14,6 +17,8 @@ copy(a::T) where {T<:StateVector} = T(a.basis, copy(a.data)) # FIXME issue #12
 length(a::StateVector) = length(a.basis)::Int # FIXME issue #12
 basis(a::StateVector) = a.basis # FIXME issue #12
 directsum(x::StateVector...) = reduce(directsum, x)
+adjoint(a::StateVector) = dagger(a)
+
 
 # Array-like functions
 Base.size(x::StateVector) = size(x.data) # FIXME issue #12
@@ -24,9 +29,6 @@ Base.eltype(x::StateVector) = eltype(x.data) # FIXME issue #12
 
 # Broadcasting
 Base.broadcastable(x::StateVector) = x
-
-Base.adjoint(a::StateVector) = dagger(a)
-
 
 ##
 # Operators
@@ -67,7 +69,10 @@ function Base.size(op::AbstractOperator, i::Int)
     i==1 ? length(op.basis_l) : length(op.basis_r) # FIXME issue #12
 end
 
-Base.adjoint(a::AbstractOperator) = dagger(a)
+adjoint(a::AbstractOperator) = dagger(a)
+
+transpose(a::AbstractOperator) = arithmetic_unary_error("Transpose", a)
+
 
 conj(a::AbstractOperator) = arithmetic_unary_error("Complex conjugate", a)
 conj!(a::AbstractOperator) = conj(a::AbstractOperator)

@@ -1,9 +1,5 @@
 module QuantumInterface
 
-import Base: ==, +, -, *, /, ^, length, one, exp, conj, conj!, transpose, copy
-import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
-import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
-
 ##
 # Basis specific
 ##

@@ -339,9 +339,9 @@ SumBasis(shape, bases::Vector) = (tmp = (bases...,); SumBasis(shape, tmp))
 SumBasis(bases::Vector) = SumBasis((bases...,))
 SumBasis(bases::Basis...) = SumBasis((bases...,))
 
-==(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
-==(b1::SumBasis, b2::SumBasis) = false
-length(b::SumBasis) = sum(b.shape)
+Base.:(==)(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
+Base.:(==)(b1::SumBasis, b2::SumBasis) = false
+Base.length(b::SumBasis) = sum(b.shape)
 
 """
     directsum(b1::Basis, b2::Basis)
