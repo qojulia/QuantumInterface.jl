@@ -2,7 +2,6 @@ module QuantumInterface
 
 import Base: ==, +, -, *, /, ^, length, one, exp, conj, conj!, transpose, copy
 import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
-import Base: show, summary
 import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
 
 function apply! end
@@ -87,6 +86,7 @@ function wigner end
 
 include("bases.jl")
 include("abstract_types.jl")
+include("show.jl")
 
 include("linalg.jl")
 include("tensor.jl")
