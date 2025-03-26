@@ -16,7 +16,6 @@ dagger(a::AbstractOperator) = arithmetic_unary_error("Hermitian conjugate", a)
 copy(a::T) where {T<:StateVector} = T(a.basis, copy(a.data)) # FIXME issue #12
 length(a::StateVector) = length(a.basis)::Int # FIXME issue #12
 basis(a::StateVector) = a.basis # FIXME issue #12
-directsum(x::StateVector...) = reduce(directsum, x)
 adjoint(a::StateVector) = dagger(a)
 
 

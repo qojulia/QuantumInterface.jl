@@ -45,39 +45,6 @@ CompositeBasis(bases::Vector) = CompositeBasis((bases...,))
 
 Base.:(==)(b1::T, b2::T) where T<:CompositeBasis = equal_shape(b1.shape, b2.shape)
 
-tensor(b::Basis) = b
-
-"""
-    tensor(x::Basis, y::Basis, z::Basis...)
-
-Create a [`CompositeBasis`](@ref) from the given bases.
-
-Any given CompositeBasis is expanded so that the resulting CompositeBasis never
-contains another CompositeBasis.
-"""
-tensor(b1::Basis, b2::Basis) = CompositeBasis([length(b1); length(b2)], (b1, b2))
-tensor(b1::CompositeBasis, b2::CompositeBasis) = CompositeBasis([b1.shape; b2.shape], (b1.bases..., b2.bases...))
-function tensor(b1::CompositeBasis, b2::Basis)
-    N = length(b1.bases)
-    shape = vcat(b1.shape, length(b2))
-    bases = (b1.bases..., b2)
-    CompositeBasis(shape, bases)
-end
-function tensor(b1::Basis, b2::CompositeBasis)
-    N = length(b2.bases)
-    shape = vcat(length(b1), b2.shape)
-    bases = (b1, b2.bases...)
-    CompositeBasis(shape, bases)
-end
-tensor(bases::Basis...) = reduce(tensor, bases)
-
-function Base.:^(b::Basis, N::Integer)
-    if N < 1
-        throw(ArgumentError("Power of a basis is only defined for positive integers."))
-    end
-    tensor([b for i=1:N]...)
-end
-
 """
     equal_shape(a, b)
 
@@ -183,41 +150,6 @@ function check_multiplicable(b1, b2)
         throw(IncompatibleBases())
     end
 end
-
-"""
-    reduced(a, indices)
-
-Reduced basis, state or operator on the specified subsystems.
-
-The `indices` argument, which can be a single integer or a vector of integers,
-specifies which subsystems are kept. At least one index must be specified.
-"""
-function reduced(b::CompositeBasis, indices)
-    if length(indices)==0
-        throw(ArgumentError("At least one subsystem must be specified in reduced."))
-    elseif length(indices)==1
-        return b.bases[indices[1]]
-    else
-        return CompositeBasis(b.shape[indices], b.bases[indices])
-    end
-end
-
-"""
-    ptrace(a, indices)
-
-Partial trace of the given basis, state or operator.
-
-The `indices` argument, which can be a single integer or a vector of integers,
-specifies which subsystems are traced out. The number of indices has to be
-smaller than the number of subsystems, i.e. it is not allowed to perform a
-full trace.
-"""
-function ptrace(b::CompositeBasis, indices)
-    J = [i for i in 1:length(b.bases) if i ∉ indices]
-    length(J) > 0 || throw(ArgumentError("Tracing over all indices is not allowed in ptrace."))
-    reduced(b, J)
-end
-
 
 """
     permutesystems(a, perm)
@@ -342,29 +274,5 @@ SumBasis(bases::Basis...) = SumBasis((bases...,))
 Base.:(==)(b1::T, b2::T) where T<:SumBasis = equal_shape(b1.shape, b2.shape)
 Base.:(==)(b1::SumBasis, b2::SumBasis) = false
 Base.length(b::SumBasis) = sum(b.shape)
-
-"""
-    directsum(b1::Basis, b2::Basis)
-
-Construct the [`SumBasis`](@ref) out of two sub-bases.
-"""
-directsum(b1::Basis, b2::Basis) = SumBasis(Int[length(b1); length(b2)], Basis[b1, b2])
-directsum(b::Basis) = b
-directsum(b::Basis...) = reduce(directsum, b)
-function directsum(b1::SumBasis, b2::Basis)
-    shape = [b1.shape;length(b2)]
-    bases = [b1.bases...;b2]
-    return SumBasis(shape, (bases...,))
-end
-function directsum(b1::Basis, b2::SumBasis)
-    shape = [length(b1);b2.shape]
-    bases = [b1;b2.bases...]
-    return SumBasis(shape, (bases...,))
-end
-function directsum(b1::SumBasis, b2::SumBasis)
-    shape = [b1.shape;b2.shape]
-    bases = [b1.bases...;b2.bases...]
-    return SumBasis(shape, (bases...,))
-end
 
 embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)

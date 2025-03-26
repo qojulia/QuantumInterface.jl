@@ -27,6 +27,12 @@ function apply! end
 
 function dagger end
 
+"""
+    directsum(x, y, z...)
+
+Direct sum of the given objects. Alternatively, the unicode
+symbol ⊕ (\\oplus) can be used.
+"""
 function directsum end
 const ⊕ = directsum
 directsum() = GenericBasis(0)

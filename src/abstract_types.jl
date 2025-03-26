@@ -53,5 +53,3 @@ A_{br_1,br_2} = B_{bl_1,bl_2} S_{(bl_1,bl_2) ↔ (br_1,br_2)}
 ```
 """
 abstract type AbstractSuperOperator{B1,B2} end
-
-traceout!(s::StateVector, i) = ptrace(s,i)
