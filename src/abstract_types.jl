@@ -1,4 +1,19 @@
 """
+Abstract base class for all specialized bases.
+
+The Basis class is meant to specify a basis of the Hilbert space of the
+studied system. Besides basis specific information all subclasses must
+implement a shape variable which indicates the dimension of the used
+Hilbert space. For a spin-1/2 Hilbert space this would be the
+vector `[2]`. A system composed of two spins would then have a
+shape vector `[2 2]`.
+
+Composite systems can be defined with help of the [`CompositeBasis`](@ref)
+class.
+"""
+abstract type Basis end
+
+"""
 Abstract base class for `Bra` and `Ket` states.
 
 The state vector class stores the coefficients of an abstract state
@@ -38,20 +53,3 @@ A_{br_1,br_2} = B_{bl_1,bl_2} S_{(bl_1,bl_2) ↔ (br_1,br_2)}
 ```
 """
 abstract type AbstractSuperOperator{B1,B2} end
-
-function summary(stream::IO, x::AbstractOperator)
-    print(stream, "$(typeof(x).name.name)(dim=$(length(x.basis_l))x$(length(x.basis_r)))\n")
-    if samebases(x)
-        print(stream, "  basis: ")
-        show(stream, basis(x))
-    else
-        print(stream, "  basis left:  ")
-        show(stream, x.basis_l)
-        print(stream, "\n  basis right: ")
-        show(stream, x.basis_r)
-    end
-end
-
-show(stream::IO, x::AbstractOperator) = summary(stream, x)
-
-traceout!(s::StateVector, i) = ptrace(s,i)

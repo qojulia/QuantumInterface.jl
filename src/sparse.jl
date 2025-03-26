@@ -1,4 +1,4 @@
-# TODO make an extension?
+import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
 
 # dense(a::AbstractOperator) = arithmetic_unary_error("Conversion to dense", a)
 

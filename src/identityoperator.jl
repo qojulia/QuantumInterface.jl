@@ -1,4 +1,4 @@
-one(x::Union{<:Basis,<:AbstractOperator}) = identityoperator(x)
+Base.one(x::Union{<:Basis,<:AbstractOperator}) = identityoperator(x)
 
 """
     identityoperator(a::Basis[, b::Basis])
