@@ -1,20 +1,13 @@
+##
+# GenericBasis, CompositeBasis
+##
+
 """
     length(b::Basis)
 
 Total dimension of the Hilbert space.
 """
 Base.length(b::Basis) = prod(b.shape)
-
-"""
-    basis(a)
-
-Return the basis of an object.
-
-If it's ambiguous, e.g. if an operator has a different left and right basis,
-an [`IncompatibleBases`](@ref) error is thrown.
-"""
-function basis end
-
 
 """
     GenericBasis(N)
@@ -121,11 +114,6 @@ function equal_bases(a, b)
     end
     return true
 end
-
-"""
-Exception that should be raised for an illegal algebraic operation.
-"""
-mutable struct IncompatibleBases <: Exception end
 
 const BASES_CHECK = Ref(true)
 
