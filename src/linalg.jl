@@ -1,3 +1,76 @@
+##
+# Basis checks
+##
+
+const BASES_CHECK = Ref(true)
+
+"""
+    @samebases
+
+Macro to skip checks for same bases. Useful for `*`, `expect` and similar
+functions.
+"""
+macro samebases(ex)
+    return quote
+        BASES_CHECK.x = false
+        local val = $(esc(ex))
+        BASES_CHECK.x = true
+        val
+    end
+end
+
+"""
+    samebases(a, b)
+
+Test if two objects have the same bases.
+"""
+samebases(b1::Basis, b2::Basis) = b1==b2
+samebases(b1::Tuple{Basis, Basis}, b2::Tuple{Basis, Basis}) = b1==b2 # for checking superoperators
+
+"""
+    check_samebases(a, b)
+
+Throw an [`IncompatibleBases`](@ref) error if the objects don't have
+the same bases.
+"""
+function check_samebases(b1, b2)
+    if BASES_CHECK[] && !samebases(b1, b2)
+        throw(IncompatibleBases())
+    end
+end
+
+
+"""
+    multiplicable(a, b)
+
+Check if two objects are multiplicable.
+"""
+multiplicable(b1::Basis, b2::Basis) = b1==b2
+
+function multiplicable(b1::CompositeBasis, b2::CompositeBasis)
+    if !equal_shape(b1.shape,b2.shape)
+        return false
+    end
+    for i=1:length(b1.shape)
+        if !multiplicable(b1.bases[i], b2.bases[i])
+            return false
+        end
+    end
+    return true
+end
+
+"""
+    check_multiplicable(a, b)
+
+Throw an [`IncompatibleBases`](@ref) error if the objects are
+not multiplicable.
+"""
+function check_multiplicable(b1, b2)
+    if BASES_CHECK[] && !multiplicable(b1, b2)
+        throw(IncompatibleBases())
+    end
+end
+
 samebases(a::AbstractOperator) = samebases(a.basis_l, a.basis_r)::Bool # FIXME issue #12
 samebases(a::AbstractOperator, b::AbstractOperator) = samebases(a.basis_l, b.basis_l)::Bool && samebases(a.basis_r, b.basis_r)::Bool # FIXME issue #12
 check_samebases(a::Union{AbstractOperator, AbstractSuperOperator}) = check_samebases(a.basis_l, a.basis_r) # FIXME issue #12
