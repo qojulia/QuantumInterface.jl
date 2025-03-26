@@ -84,8 +84,8 @@ function squeeze end
 
 function wigner end
 
-include("bases.jl")
 include("abstract_types.jl")
+include("bases.jl")
 include("show.jl")
 
 include("linalg.jl")
