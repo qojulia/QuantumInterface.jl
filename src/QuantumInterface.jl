@@ -87,6 +87,7 @@ function wigner end
 
 include("bases.jl")
 include("abstract_types.jl")
+include("spaces.jl")
 
 include("linalg.jl")
 include("tensor.jl")
