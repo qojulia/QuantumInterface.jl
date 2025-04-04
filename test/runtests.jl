@@ -26,6 +26,7 @@ end
 println("Starting tests with $(Threads.nthreads()) threads out of `Sys.CPU_THREADS = $(Sys.CPU_THREADS)`...")
 
 @doset "sortedindices"
+@doset "spaces"
 #VERSION >= v"1.9" && @doset "doctests"
 get(ENV,"JET_TEST","")=="true" && @doset "jet"
 VERSION >= v"1.9" && @doset "aqua"
