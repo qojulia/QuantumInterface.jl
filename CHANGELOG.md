@@ -1,6 +1,11 @@
 # News
 
+## v0.3.9 - 2025-04-03
+
+- Deprecate `equal_bases`.
+
 ## v0.3.8 - 2025-03-08
+
 - Introduce `metrics.jl` file for metric declarations.
 
 ## v0.3.7 - 2025-01-16
