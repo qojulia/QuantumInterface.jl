@@ -121,23 +121,6 @@ function equal_shape(a, b)
 end
 
 """
-    equal_bases(a, b)
-
-Check if two subbases vectors are identical.
-"""
-function equal_bases(a, b)
-    if a===b
-        return true
-    end
-    for i=1:length(a)
-        if a[i]!=b[i]
-            return false
-        end
-    end
-    return true
-end
-
-"""
 Exception that should be raised for an illegal algebraic operation.
 """
 mutable struct IncompatibleBases <: Exception end
