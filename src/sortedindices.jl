@@ -74,9 +74,9 @@ function check_indices(imax, indices)
     N = length(indices)
     for n=1:N
         i = indices[n]
-        @assert 0 < i <= imax
+        (0 < i <= imax) || throw(ArgumentError("indices exceed allowable range"))
         for m in n+1:N
-            @assert i != indices[m]
+            (i != indices[m]) || throw(ArgumentError("indices not unique"))
         end
     end
 end
@@ -90,10 +90,10 @@ function check_sortedindices(imax, indices)
         return nothing
     end
     i_ = indices[1]
-    @assert 0 < i_ <= imax
+    (0 < i_ <= imax) || throw(ArgumentError("indices exceed allowable range"))
     for i in indices[2:end]
-        @assert 0 < i <= imax
-        @assert i > i_
+        (0 < i <= imax) || throw(ArgumentError("indices exceed allowable range"))
+        (i > i_) || throw(ArgumentError("indices not sorted"))
     end
 end
 
@@ -107,8 +107,7 @@ function check_embed_indices(indices)
     # short circuit return when `indices` is empty.
     length(indices) == 0 && return true
 
-    err_str = "Variable `indices` comes in an unexpected form. Expecting `Array{Union{Int, Array{Int, 1}}, 1}`"
-    @assert all(x isa Array || x isa Int for x in indices) err_str
+    all(x isa Array || x isa Int for x in indices) || throw(ArgumentError("Variable `indices` comes in an unexpected form. Expecting `Array{Union{Int, Array{Int, 1}}, 1}`"))
 
     # flatten the indices and check for uniqueness
     # use a custom flatten because it's ≈ 4x  faster than Base.Iterators.flatten

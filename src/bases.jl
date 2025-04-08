@@ -255,8 +255,8 @@ For a permutation vector `[2,1,3]` and a given object with basis `[b1, b2, b3]`
 this function results in `[b2, b1, b3]`.
 """
 function permutesystems(b::CompositeBasis, perm)
-    @assert length(b.bases) == length(perm)
-    @assert isperm(perm)
+    (nsubsystems(b) == length(perm)) || throw(ArgumentError("Must have nsubsystems(b) == length(perm) in permutesystems"))
+    isperm(perm) || throw(ArgumentError("Must pass actual permeutation to permutesystems"))
     CompositeBasis(b.shape[perm], b.bases[perm])
 end
 
@@ -340,8 +340,8 @@ struct SpinBasis{S,T} <: Basis
     function SpinBasis{S}(spinnumber::Rational{T}) where {S,T<:Integer}
         n = numerator(spinnumber)
         d = denominator(spinnumber)
-        @assert d==2 || d==1
-        @assert n >= 0
+        d==2 || d==1 || throw(ArgumentError("Can only construct integer or half-integer spin basis"))
+        n >= 0 || throw(ArgumentError("Can only construct positive spin basis"))
         N = numerator(spinnumber*2 + 1)
         new{spinnumber,T}([N], spinnumber)
     end
