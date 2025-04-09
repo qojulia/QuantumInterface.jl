@@ -1,5 +1,9 @@
 # News
 
+## v0.3.9 - 2025-04-08
+
+- Add `GabsRepr` type for representations in Gabs.
+
 ## v0.3.8 - 2025-03-08
 - Introduce `metrics.jl` file for metric declarations.
 
