@@ -50,7 +50,7 @@ of this function and are provided automatically.
 abstract type AbstractOperator end
 
 function summary(stream::IO, x::AbstractOperator)
-    print(stream, "$(typeof(x).name.name)(dim=$(length(x.basis_l))x$(length(x.basis_r)))\n")
+    print(stream, "$(typeof(x).name.name)(dim=$(dimension(x.basis_l))x$(dimension(x.basis_r)))\n")
     if multiplicable(x,x)
         print(stream, "  basis: ")
         show(stream, basis(x))

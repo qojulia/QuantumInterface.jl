@@ -2,10 +2,12 @@
 Abstract type for all specialized bases of a Hilbert space.
 
 This type specifies an orthonormal basis for the Hilbert space of the given
-system. All subtypes must implement `Base.:(==)` and `Base.length`, where the
-latter should return the total dimension of the Hilbert space
+system. All subtypes must implement `Base.:(==)` and `dimension`, where the
+latter should return the total dimension of the Hilbert space.
 
 Composite systems can be defined with help of [`CompositeBasis`](@ref).
+Custom subtypes can also define composite systems by implementing
+`Base.length` and `Base.getindex`.
 
 All relevant properties of concrete subtypes of `Basis` defined in
 `QuantumInterface` should be accessed using their documented functions and
@@ -40,24 +42,44 @@ Return the right basis of an operator.
 """
 function basis_r end
 
-
 """
     length(b::Basis)
 
-Total dimension of the Hilbert space.
+Return the number of subsystems of a quantum object in its tensor product
+decomposition.
+
+See also [`CompositeBasis`](@ref).
 """
-Base.length(b::Basis) = throw(ArgumentError("Base.length() is not defined for $(typeof(b))"))
+Base.length(b::Basis) = 1
 
 """
-    size(b::Basis)
+    getindex(b::Basis)
+
+Get the i'th factor in the tensor product decomposition of the basis into
+subsystems.
+
+See also [`CompositeBasis`](@ref).
+"""
+Base.getindex(b::Basis, i) = i==1 ? b : throw(BoundsError("attempted to access a nonexistent subsystem basis"))
+
+Base.iterate(b::Basis, state=1) = state > length(b) ? nothing : (b[state], state+1)
+
+"""
+    dimension(b::Basis)
+
+Total dimension of the Hilbert space.
+"""
+dimension(b::Basis) = throw(ArgumentError("dimesion() is not defined for $(typeof(b))"))
+
+"""
+    shape(b::Basis)
 
 A vector containing the local dimensions of each Hilbert space in its tensor
 product decomposition into subsystems.
 
-See also [`nsubsystems`](@ref) and [`CompositeBasis`](@ref).
+See also [`CompositeBasis`](@ref).
 """
-Base.size(b::Basis) = [length(b)]
-
+shape(b::Basis) = [dimension(b[i]) for i=1:length(b)]
 
 ##
 # GenericBasis, CompositeBasis, SumBasis
@@ -76,7 +98,7 @@ struct GenericBasis{S} <: Basis
     dim::S
 end
 Base.:(==)(b1::GenericBasis, b2::GenericBasis) = b1.dim == b2.dim
-Base.length(b::GenericBasis) = b.dim
+dimension(b::GenericBasis) = b.dim
 
 """
     CompositeBasis(b1, b2...)
@@ -91,14 +113,15 @@ struct CompositeBasis{B<:Basis,S<:Integer} <: Basis
     shape::Vector{S}
     bases::Vector{B}
 end
-CompositeBasis(bases) = CompositeBasis([length(b) for b in bases], bases)
+CompositeBasis(bases) = CompositeBasis([dimension(b) for b in bases], bases)
 CompositeBasis(bases::Basis...) = CompositeBasis([bases...])
 CompositeBasis(bases::Tuple) = CompositeBasis([bases...])
 
 Base.:(==)(b1::CompositeBasis, b2::CompositeBasis) = all(((i, j),) -> i == j, zip(b1.bases, b2.bases))
-Base.length(b::CompositeBasis) = prod(b.shape)
-Base.size(b::CompositeBasis) = b.shape
+Base.length(b::CompositeBasis) = length(b.bases)
 Base.getindex(b::CompositeBasis, i) = getindex(b.bases, i)
+shape(b::CompositeBasis) = b.shape
+dimension(b::CompositeBasis) = prod(b.shape)
 
 """
     tensor(x::Basis, y::Basis, z::Basis...)
@@ -108,10 +131,10 @@ Create a [`CompositeBasis`](@ref) from the given bases.
 Any given CompositeBasis is expanded so that the resulting CompositeBasis never
 contains another CompositeBasis.
 """
-tensor(b1::Basis, b2::Basis) = CompositeBasis([length(b1), length(b2)], [b1, b2])
+tensor(b1::Basis, b2::Basis) = CompositeBasis([dimension(b1), dimension(b2)], [b1, b2])
 tensor(b1::CompositeBasis, b2::CompositeBasis) = CompositeBasis([b1.shape; b2.shape], [b1.bases; b2.bases])
-tensor(b1::CompositeBasis, b2::Basis) = CompositeBasis([b1.shape; length(b2)], [b1.bases; b2])
-tensor(b1::Basis, b2::CompositeBasis) = CompositeBasis([length(b1); b2.shape], [b1; b2.bases])
+tensor(b1::CompositeBasis, b2::Basis) = CompositeBasis([b1.shape; dimension(b2)], [b1.bases; b2])
+tensor(b1::Basis, b2::CompositeBasis) = CompositeBasis([dimension(b1); b2.shape], [b1; b2.bases])
 tensor(bases::Basis...) = reduce(tensor, bases)
 tensor(basis::Basis) = basis
 
@@ -126,23 +149,39 @@ struct SumBasis{S<:Integer,B<:Basis} <: Basis
     shape::Vector{S}
     bases::Vector{B}
 end
-SumBasis(bases) = SumBasis([length(b) for b in bases], bases)
+SumBasis(bases) = SumBasis([dimension(b) for b in bases], bases)
 SumBasis(bases::Basis...) = SumBasis([bases...])
 SumBasis(bases::Tuple) = SumBasis([bases...])
 
 Base.:(==)(b1::SumBasis, b2::SumBasis) = all(((i, j),) -> i == j, zip(b1.bases, b2.bases))
-Base.length(b::SumBasis) = sum(b.shape)
-Base.getindex(b::SumBasis, i) = getindex(b.bases, i)
+dimension(b::SumBasis) = sum(b.shape)
+
+
+
+"""
+    nsubspaces(b)
+
+Return the number of subspaces of a [`SumBasis`](@ref) in its direct sum
+decomposition.
+"""
+nsubspaces(b::SumBasis) = length(b.bases)
+
+"""
+    subspace(b, i)
+
+Return the basis for the `i`th subspace of of a [`SumBasis`](@ref).
+"""
+subspace(b::SumBasis, i) = b.bases[i]
 
 """
     directsum(b1::Basis, b2::Basis)
 
 Construct the [`SumBasis`](@ref) out of two sub-bases.
 """
-directsum(b1::Basis, b2::Basis) = SumBasis([length(b1), length(b2)], [b1, b2])
+directsum(b1::Basis, b2::Basis) = SumBasis([dimension(b1), dimension(b2)], [b1, b2])
 directsum(b1::SumBasis, b2::SumBasis) = SumBasis([b1.shape, b2.shape], [b1.bases; b2.bases])
-directsum(b1::SumBasis, b2::Basis) = SumBasis([b1.shape; length(b2)], [b1.bases; b2])
-directsum(b1::Basis, b2::SumBasis) = SumBasis([length(b1); b2.shape], [b1; b2.bases])
+directsum(b1::SumBasis, b2::Basis) = SumBasis([b1.shape; dimension(b2)], [b1.bases; b2])
+directsum(b1::Basis, b2::SumBasis) = SumBasis([dimension(b1); b2.shape], [b1; b2.bases])
 directsum(bases::Basis...) = reduce(directsum, bases)
 directsum(basis::Basis) = basis
 
@@ -266,7 +305,7 @@ For a permutation vector `[2,1,3]` and a given object with basis `[b1, b2, b3]`
 this function results in `[b2, b1, b3]`.
 """
 function permutesystems(b::CompositeBasis, perm)
-    (nsubsystems(b) == length(perm)) || throw(ArgumentError("Must have nsubsystems(b) == length(perm) in permutesystems"))
+    (length(b) == length(perm)) || throw(ArgumentError("Must have length(b) == length(perm) in permutesystems"))
     isperm(perm) || throw(ArgumentError("Must pass actual permeutation to permutesystems"))
     CompositeBasis(b.shape[perm], b.bases[perm])
 end
@@ -297,7 +336,7 @@ struct FockBasis{T<:Integer} <: Basis
 end
 
 Base.:(==)(b1::FockBasis, b2::FockBasis) = (b1.N==b2.N && b1.offset==b2.offset)
-Base.length(b::FockBasis) = b.N - b.offset + 1
+dimension(b::FockBasis) = b.N - b.offset + 1
 
 """
     cutoff(b::FockBasis)
@@ -332,7 +371,7 @@ struct NLevelBasis{T<:Integer} <: Basis
 end
 
 Base.:(==)(b1::NLevelBasis, b2::NLevelBasis) = b1.N == b2.N
-Base.length(b::NLevelBasis) = b.N
+dimension(b::NLevelBasis) = b.N
 
 """
     SpinBasis(n)
@@ -358,7 +397,7 @@ end
 SpinBasis(spinnumber) = SpinBasis(convert(Rational{Int}, spinnumber))
 
 Base.:(==)(b1::SpinBasis, b2::SpinBasis) = b1.spinnumber==b2.spinnumber
-Base.length(b::SpinBasis) = numerator(b.spinnumber*2 + 1)
+dimension(b::SpinBasis) = numerator(b.spinnumber*2 + 1)
 
 """
     spinnumber(b::SpinBasis)
@@ -368,6 +407,77 @@ Return the spin number of the given spin basis.
 See [`SpinBasis`](@ref).
 """
 spinnumber(b::SpinBasis) = b.spinnumber
+
+
+##
+# Operator Bases
+##
+
+"""
+    KetBraBasis(BL,BR)
+
+The "Ket-Bra" operator basis is the standard representation for the left and
+right bases of superoperators. This basis is formed by "vec'ing" the
+outer-product "Ket-Bra" basis for an operator with a left Bra basis and right
+Ket basis which practically means flipping the Bra to a Ket. The operator itself
+is then represented as a "Super-Bra" in this basis and corresponds to
+column-stacking its matrix.
+"""
+struct KetBraBasis{BL<:Basis, BR<:Basis} <: Basis
+    left::BL
+    right::BR
+end
+KetBraBasis(b::Basis) = KetBraBasis(b,b)
+basis_l(b::KetBraBasis) = b.left
+basis_r(b::KetBraBasis) = b.right
+Base.:(==)(b1::KetBraBasis, b2::KetBraBasis) = (b1.left == b2.left && b1.right == b2.right)
+dimension(b::KetBraBasis) = dimension(b.left)*dimension(b.right)
+
+struct ChoiBasis{BL<:Basis, BR<:Basis} <: Basis
+    ref::BL
+    out::BR
+end
+basis_l(b::ChoiBasis) = b.ref
+basis_r(b::ChoiBasis) = b.out
+Base.:(==)(b1::ChoiBasis, b2::ChoiBasis) = (b1.ref == b2.ref && b1.out == b2.out)
+dimension(b::ChoiBasis) = dimension(b.ref)*dimension(b.out)
+
+"""
+    PauliBasis(N)
+
+The standard Pauli operator basis for an `N` qubit space. This consists of
+tensor products of the Pauli matrices I, X, Y, Z, in that order for each qubit.
+The dimension of the basis is 2²ᴺ.
+"""
+struct PauliBasis{T<:Integer} <: Basis
+    N::T
+end
+Base.:(==)(b1::PauliBasis, b2::PauliBasis) = b1.N == b2.N
+shape(b::PauliBasis) = fill(4, b.N)
+dimension(b::PauliBasis) = 4^b.N
+Base.length(b::PauliBasis) = b.N
+Base.getindex(b::PauliBasis, i) = PauliBasis(length(i))
+
+"""
+    HWPauliBasis(N)
+
+The Hesienberg-Weyl Pauli operator basis consisting of the N represents the
+underlying Hilbert space dimension, not the operator basis dimension. For N>2,
+this representes the operator basis formed by the generalized Pauli matrices,
+also called the clock and shift matrices. The ordering is the usual one: when
+the index is written in base-N and thus has only two digits, the least
+significant bit gives powers of Z (the clock matrix), and most significant bit
+gives powers of X (the shfit matrix).
+"""
+struct HWPauliBasis{T<:Integer} <: Basis
+    shape::Vector{T}
+end
+HWPauliBasis(N::Integer) = HWPauliBasis([N])
+Base.:(==)(b1::HWPauliBasis, b2::HWPauliBasis) = b1.shape == b2.shape
+shape(b::HWPauliBasis) = [n^2 for n in b.shape]
+dimension(b::HWPauliBasis) = prod([n^2 for n in b.shape])
+Base.length(b::HWPauliBasis) = length(b.shape)
+Base.getindex(b::HWPauliBasis, i) = HWPauliBasis([b.shape[i]...])
 
 
 ##
@@ -422,54 +532,14 @@ function show(stream::IO, x::SumBasis)
     write(stream, "]")
 end
 
-##
-# Operator Bases
-##
-
-"""
-    KetBraBasis(BL,BR)
-
-The "Ket-Bra" operator basis is the standard representation for the left and
-right bases of superoperators. This basis is formed by "vec'ing" the
-outer-product "Ket-Bra" basis for an operator with a left Bra basis and right
-Ket basis which practically means flipping the Bra to a Ket. The operator itself
-is then represented as a "Super-Bra" in this basis and corresponds to
-column-stacking its matrix.
-"""
-struct KetBraBasis{BL<:Basis, BR<:Basis} <: Basis
-    left::BL
-    right::BR
+function show(stream::IO, x::KetBraBasis)
+    write(stream, "KetBra(left=$(x.left), right=$(x.right))")
 end
-KetBraBasis(b::Basis) = KetBraBasis(b,b)
-basis_l(b::KetBraBasis) = b.left
-basis_r(b::KetBraBasis) = b.right
-Base.:(==)(b1::KetBraBasis, b2::KetBraBasis) = (b1.left == b2.left && b1.right == b2.right)
-Base.length(b::KetBraBasis) = length(b.left)*length(b.right)
 
-struct ChoiBasis{BL<:Basis, BR<:Basis} <: Basis
-    ref::BL
-    out::BR
+function show(stream::IO, x::PauliBasis)
+    write(stream, "Pauli(N=$(x.N)")
 end
-basis_l(b::ChoiBasis) = b.ref
-basis_r(b::ChoiBasis) = b.out
-Base.:(==)(b1::ChoiBasis, b2::ChoiBasis) = (b1.ref == b2.ref && b1.out == b2.out)
-Base.length(b::ChoiBasis) = length(b.ref)*length(b.out)
 
-"""
-    _PauliBasis()
-    _PauliBasis(N)
-
-By default N=2 and this represents the Pauli operator basis consisting of the
-Pauli matrices I, Z, X, Y, in that order. N represents the underlying Hilbert
-space dimension, not the operator basis dimension. For N>2, this representes the
-operator basis formed by the generalized Pauli matrices, also called the clock
-and shift matrices. The ordering is the usual one: when the index is written in
-base-N and thus has only two digits, the least significant bit gives powers of Z
-(the clock matrix), and most significant bit gives powers of X (the shfit matrix).
-"""
-struct _PauliBasis(T<:Integer) <: Basis
-    dim::T
+function show(stream::IO, x::HWPauliBasis)
+    write(stream, "Pauli($(x.shape)")
 end
-_PauliBasis() = _PauliBasis(2)
-Base.:(==)(pb1::_PauliBasis, pb2::_PauliBasis) = true
-Base.length(b::_PauliBasis) = b.dim^2

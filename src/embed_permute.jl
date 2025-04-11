@@ -7,8 +7,8 @@ specifies in which subsystems the corresponding operator is defined.
 """
 function embed(bl::CompositeBasis, br::CompositeBasis,
                operators::Dict{<:Vector{<:Integer}, T}) where T<:AbstractOperator
-    (nsubsystems(bl) == nsubsystems(br)) || throw(ArgumentError("Must have nsubsystems(bl) == nsubsystems(br) in embed"))
-    N = nsubsystems(bl)::Int # type assertion to help type inference
+    (length(bl) == length(br)) || throw(ArgumentError("Must have length(bl) == length(br) in embed"))
+    N = length(bl)::Int # type assertion to help type inference
     if length(operators) == 0
         return identityoperator(T, bl, br)
     end
@@ -56,10 +56,10 @@ function embed(bl::CompositeBasis, br::CompositeBasis,
                indices, operators::Vector{T}) where T<:AbstractOperator
 
     check_embed_indices(indices) || throw(ArgumentError("Must have unique indices in embed"))
-    (nsubsystems(bl) == nsubsystems(br)) || throw(ArgumentError("Must have nsubsystems(bl) == nsubsystems(br) in embed"))
+    (length(bl) == length(br)) || throw(ArgumentError("Must have length(bl) == length(br) in embed"))
     (length(indices) == length(operators)) || throw(ArgumentError("Must have length(indices) == length(operators) in embed"))
 
-    N = nsubsystems(bl)
+    N = length(bl)
 
     # Embed all single-subspace operators.
     idxop_sb = [x for x in zip(indices, operators) if x[1] isa Integer]
@@ -84,27 +84,3 @@ function embed(bl::CompositeBasis, br::CompositeBasis,
 end
 
 permutesystems(a::AbstractOperator, perm) = arithmetic_unary_error("Permutations of subsystems", a)
-
-"""
-    nsubsystems(a)
-
-Return the number of subsystems of a quantum object in its tensor product
-decomposition.
-
-See also [`CompositeBasis`](@ref).
-"""
-nsubsystems(s::StateVector) = nsubsystems(basis(s))
-nsubsystems(s::AbstractOperator) = nsubsystems(basis(s))
-nsubsystems(b::CompositeBasis) = length(b.bases)
-nsubsystems(b::Basis) = 1
-nsubsystems(::Nothing) = 1 # TODO Exists because of QuantumSavory; Consider removing this and reworking the functions that depend on it. E.g., a reason to have it when performing a project_traceout measurement on a state that contains only one subsystem
-
-"""
-    nsubspaces(a)
-
-Return the number of subspaces of a quantum object in its direct sum
-decomposition.
-
-See also [`SumBasis`](@ref).
-"""
-nsubspaces(b::SumBasis) = length(b.bases)

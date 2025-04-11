@@ -4,7 +4,7 @@
 If an `index` is given, it assumes that `op` is defined in the subsystem specified by this number.
 """
 expect(indices, op::AbstractOperator, state::AbstractOperator) =
-    expect(op, ptrace(state, complement(nsubsystems(state), indices)))
+    expect(op, ptrace(state, complement(length(basis(state)), indices)))
 
 expect(index::Integer, op::AbstractOperator, state::AbstractOperator) = expect([index], op, state)
 
@@ -21,7 +21,7 @@ expect(op::AbstractOperator, state::AbstractOperator) =
 If an `index` is given, it assumes that `op` is defined in the subsystem specified by this number
 """
 variance(indices, op::AbstractOperator, state::AbstractOperator) =
-    variance(op, ptrace(state, complement(nsubsystems(state), indices)))
+    variance(op, ptrace(state, complement(length(basis(state)), indices)))
 
 variance(index::Integer, op::AbstractOperator, state::AbstractOperator) = variance([index], op, state)
 

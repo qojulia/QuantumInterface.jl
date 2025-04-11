@@ -13,7 +13,7 @@ addnumbererror() = throw(ArgumentError("Can't add or subtract a number and an op
 -(a::T) where {T<:StateVector} = T(basis(a), -a.data) # FIXME issue #12
 *(a::StateVector, b::Number) = b*a
 copy(a::T) where {T<:StateVector} = T(basis(a), copy(a.data)) # FIXME issue #12
-length(a::StateVector) = length(basis(a))::Int
+length(a::StateVector) = dimension(basis(a))::Int
 basis(a::StateVector) = throw(ArgumentError("basis() is not defined for this type of state vector: $(typeof(a))."))
 directsum(x::StateVector...) = reduce(directsum, x)
 
@@ -35,7 +35,7 @@ dagger(a::StateVector) = arithmetic_unary_error("Hermitian conjugate", a)
 # Operators
 ##
 
-length(a::AbstractOperator) = length(basis_l(a))::Int*length(basis_r(a))::Int
+length(a::AbstractOperator) = dimension(basis_l(a))::Int*dimension(basis_r(a))::Int
 basis(a::AbstractOperator) = (check_samebases(basis_l(a), basis_r(a)); basis_l(a))
 basis_l(a::AbstractOperator) = throw(ArgumentError("basis_l() is not defined for this type of operator: $(typeof(a))."))
 basis_r(a::AbstractOperator) = throw(ArgumentError("basis_r() is not defined for this type of operator: $(typeof(a))."))
@@ -96,11 +96,11 @@ Operator exponential.
 """
 exp(op::AbstractOperator) = throw(ArgumentError("exp() is not defined for this type of operator: $(typeof(op)).\nTry to convert to dense operator first with dense()."))
 
-Base.size(op::AbstractOperator) = (length(basis_l(op)),length(basis_r(op)))
+Base.size(op::AbstractOperator) = (dimension(basis_l(op)),dimension(basis_r(op)))
 function Base.size(op::AbstractOperator, i::Int)
     i < 1 && throw(ErrorException("dimension index is < 1"))
     i > 2 && return 1
-    i==1 ? length(basis_l(op)) : length(basis_r(op))
+    i==1 ? dimension(basis_l(op)) : dimension(basis_r(op))
 end
 
 Base.adjoint(a::AbstractOperator) = dagger(a)
