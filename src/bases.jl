@@ -58,6 +58,15 @@ See also [`nsubsystems`](@ref) and [`CompositeBasis`](@ref).
 """
 Base.size(b::Basis) = [length(b)]
 
+"""
+    getindex(b::Basis)
+
+Get the i'th factor in the tensor product decomposition of the basis into
+subsystems.
+
+See also [`nsubsystems`](@ref) and [`CompositeBasis`](@ref).
+"""
+Base.getindex(b::Basis, i) = i==1 ? b : throw(BoundsError("attempted to access a nonexistent subsystem basis"))
 
 ##
 # GenericBasis, CompositeBasis, SumBasis
@@ -98,7 +107,7 @@ CompositeBasis(bases::Tuple) = CompositeBasis([bases...])
 Base.:(==)(b1::CompositeBasis, b2::CompositeBasis) = all(((i, j),) -> i == j, zip(b1.bases, b2.bases))
 Base.length(b::CompositeBasis) = prod(b.shape)
 Base.size(b::CompositeBasis) = b.shape
-Base.getindex(b::CompositeBasis, i) = getindex(b.bases, i)
+Base.getindex(b::CompositeBasis, i) = b.bases[i]
 
 """
     tensor(x::Basis, y::Basis, z::Basis...)
@@ -378,6 +387,72 @@ spinnumber(b::SpinBasis) = b.spinnumber
 
 
 ##
+# Operator Bases
+##
+
+"""
+    KetBraBasis(BL,BR)
+
+The "Ket-Bra" operator basis is the standard representation for the left and
+right bases of superoperators. This basis is formed by "vec'ing" the
+outer-product "Ket-Bra" basis for an operator with a left Bra basis and right
+Ket basis which practically means flipping the Bra to a Ket. The operator itself
+is then represented as a "Super-Bra" in this basis and corresponds to
+column-stacking its matrix.
+"""
+struct KetBraBasis{BL<:Basis, BR<:Basis} <: Basis
+    left::BL
+    right::BR
+end
+KetBraBasis(b::Basis) = KetBraBasis(b,b)
+basis_l(b::KetBraBasis) = b.left
+basis_r(b::KetBraBasis) = b.right
+Base.:(==)(b1::KetBraBasis, b2::KetBraBasis) = (b1.left == b2.left && b1.right == b2.right)
+Base.length(b::KetBraBasis) = length(b.left)*length(b.right)
+
+struct ChoiBasis{BL<:Basis, BR<:Basis} <: Basis
+    ref::BL
+    out::BR
+end
+basis_l(b::ChoiBasis) = b.ref
+basis_r(b::ChoiBasis) = b.out
+Base.:(==)(b1::ChoiBasis, b2::ChoiBasis) = (b1.ref == b2.ref && b1.out == b2.out)
+Base.length(b::ChoiBasis) = length(b.ref)*length(b.out)
+
+"""
+    PauliBasis(N)
+
+The standard Pauli operator basis for an `N` qubit space. This consists of
+tensor products of the Pauli matrices I, X, Y, Z, in that order for each qubit.
+The dimension of the basis is 2²ᴺ.
+"""
+struct PauliBasis{T<:Integer} <: Basis
+    N::T
+end
+Base.:(==)(b1::PauliBasis, b2::PauliBasis) = b1.N == b2.N
+Base.length(b::PauliBasis) = 4^b.N
+
+"""
+    HWPauliBasis(N)
+
+The Hesienberg-Weyl Pauli operator basis consisting of the
+N represents the underlying Hilbert
+space dimension, not the operator basis dimension. For N>2, this representes the
+operator basis formed by the generalized Pauli matrices, also called the clock
+and shift matrices. The ordering is the usual one: when the index is written in
+base-N and thus has only two digits, the least significant bit gives powers of Z
+(the clock matrix), and most significant bit gives powers of X (the shfit matrix).
+"""
+struct HWPauliBasis{T<:Integer} <: Basis
+    shape::Vector{T}
+end
+HWPauliBasis(N::Integer) = HWPauliBasis([N])
+Base.:(==)(b1::HWPauliBasis, b2::HWPauliBasis) = b1.shape == b2.shape
+Base.length(b::HWPauliBasis) = prod(b.shape)
+Base.getindex(b::HWPauliBasis, i) = HWPauliBasis([b.shape[i]])
+
+
+##
 # show methods
 ##
 
@@ -429,54 +504,14 @@ function show(stream::IO, x::SumBasis)
     write(stream, "]")
 end
 
-##
-# Operator Bases
-##
-
-"""
-    KetBraBasis(BL,BR)
-
-The "Ket-Bra" operator basis is the standard representation for the left and
-right bases of superoperators. This basis is formed by "vec'ing" the
-outer-product "Ket-Bra" basis for an operator with a left Bra basis and right
-Ket basis which practically means flipping the Bra to a Ket. The operator itself
-is then represented as a "Super-Bra" in this basis and corresponds to
-column-stacking its matrix.
-"""
-struct KetBraBasis{BL<:Basis, BR<:Basis} <: Basis
-    left::BL
-    right::BR
+function show(stream::IO, x::KetBraBasis)
+    write(stream, "KetBra(left=$(x.left), right=$(x.right))")
 end
-KetBraBasis(b::Basis) = KetBraBasis(b,b)
-basis_l(b::KetBraBasis) = b.left
-basis_r(b::KetBraBasis) = b.right
-Base.:(==)(b1::KetBraBasis, b2::KetBraBasis) = (b1.left == b2.left && b1.right == b2.right)
-Base.length(b::KetBraBasis) = length(b.left)*length(b.right)
 
-struct ChoiBasis{BL<:Basis, BR<:Basis} <: Basis
-    ref::BL
-    out::BR
+function show(stream::IO, x::PauliBasis)
+    write(stream, "Pauli(N=$(x.N)")
 end
-basis_l(b::ChoiBasis) = b.ref
-basis_r(b::ChoiBasis) = b.out
-Base.:(==)(b1::ChoiBasis, b2::ChoiBasis) = (b1.ref == b2.ref && b1.out == b2.out)
-Base.length(b::ChoiBasis) = length(b.ref)*length(b.out)
 
-"""
-    _PauliBasis()
-    _PauliBasis(N)
-
-By default N=2 and this represents the Pauli operator basis consisting of the
-Pauli matrices I, Z, X, Y, in that order. N represents the underlying Hilbert
-space dimension, not the operator basis dimension. For N>2, this representes the
-operator basis formed by the generalized Pauli matrices, also called the clock
-and shift matrices. The ordering is the usual one: when the index is written in
-base-N and thus has only two digits, the least significant bit gives powers of Z
-(the clock matrix), and most significant bit gives powers of X (the shfit matrix).
-"""
-struct _PauliBasis(T<:Integer) <: Basis
-    dim::T
+function show(stream::IO, x::HWPauliBasis)
+    write(stream, "Pauli($(x.shape)")
 end
-_PauliBasis() = _PauliBasis(2)
-Base.:(==)(pb1::_PauliBasis, pb2::_PauliBasis) = true
-Base.length(b::_PauliBasis) = b.dim^2
