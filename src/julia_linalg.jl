@@ -17,7 +17,7 @@ tr(x::AbstractOperator) = arithmetic_unary_error("Trace", x)
 
 Norm of the given bra or ket state.
 """
-norm(x::StateVector) = norm(x.data)
+norm(x::StateVector) = norm(x.data) # FIXME issue #12
 
 """
     normalize(x::StateVector)
@@ -31,7 +31,7 @@ normalize(x::StateVector) = x/norm(x)
 
 In-place normalization of the given bra or ket so that `norm(x)` is one.
 """
-normalize!(x::StateVector) = (normalize!(x.data); x)
+normalize!(x::StateVector) = (normalize!(x.data); x) # FIXME issue #12
 
 """
     normalize(op)
@@ -46,3 +46,10 @@ normalize(op::AbstractOperator) = op/tr(op)
 In-place normalization of the given operator so that its `tr(x)` is one.
 """
 normalize!(op::AbstractOperator) = throw(ArgumentError("normalize! is not defined for this type of operator: $(typeof(op)).\n You may have to fall back to the non-inplace version 'normalize()'."))
+
+"""
+    transpose(op)
+
+Transpose of the given operator.
+"""
+transpose(a::AbstractOperator) = arithmetic_unary_error("Transpose", a)

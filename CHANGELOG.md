@@ -1,6 +1,27 @@
 # News
 
+## v0.4.0 - 2025-04-05
+
+This version implements the RFC in #40 without deprecating anything. Future versions will first add deprecation warnings before removing any existing interfaces.
+
+- Eliminate all type parameters from `StateVector`, `AbstractKet`, `AbstractBra`, `AbstractOperator`, and `AbstractSuperOperator`.
+- Implement new basis checking interface consisting of `multiplicable`, `addible`, `check_multiplicable`, `check_addible`, and `@compatiblebases`.
+- Add `basis_l` and `basis_r` to get left and right bases of operators. 
+- Implement `getindex` for `CompositeBasis` and `SumBasis`.
+- Add method interface to existing subtypes of `Bases`: `spinnumber`, `cutoff`, `offset`.
+- Add `KetBraBasis`, `ChoiRefSysBasis`, `ChoiOutSysBasis`, and `_PauliBasis`. Note that eventually `_PauliBasis` will be renamed to `PauliBasis`.
+- Change internal fields and constructors for subtypes of `Basis`.
+
+## v0.3.10 - 2025-04-06
+
+- Deprecate `PauliBasis` as it is identical to `SpinBasis(1//2)^N` but without the compatibility with `CompositeBasis`.
+
+## v0.3.9 - 2025-04-03
+
+- Deprecate `equal_bases`.
+
 ## v0.3.8 - 2025-03-08
+
 - Introduce `metrics.jl` file for metric declarations.
 
 ## v0.3.7 - 2025-01-16

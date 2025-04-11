@@ -8,33 +8,38 @@ addnumbererror() = throw(ArgumentError("Can't add or subtract a number and an op
 # States
 ##
 
--(a::T) where {T<:StateVector} = T(a.basis, -a.data)
+==(a::AbstractKet, b::AbstractBra) = false
+==(a::AbstractBra, b::AbstractKet) = false
+-(a::T) where {T<:StateVector} = T(basis(a), -a.data) # FIXME issue #12
 *(a::StateVector, b::Number) = b*a
-copy(a::T) where {T<:StateVector} = T(a.basis, copy(a.data))
-length(a::StateVector) = length(a.basis)::Int
-basis(a::StateVector) = a.basis
+copy(a::T) where {T<:StateVector} = T(basis(a), copy(a.data)) # FIXME issue #12
+length(a::StateVector) = length(basis(a))::Int
+basis(a::StateVector) = throw(ArgumentError("basis() is not defined for this type of state vector: $(typeof(a))."))
 directsum(x::StateVector...) = reduce(directsum, x)
 
 # Array-like functions
-Base.size(x::StateVector) = size(x.data)
-@inline Base.axes(x::StateVector) = axes(x.data)
+Base.size(x::StateVector) = size(x.data) # FIXME issue #12
+@inline Base.axes(x::StateVector) = axes(x.data) # FIXME issue #12
 Base.ndims(x::StateVector) = 1
 Base.ndims(::Type{<:StateVector}) = 1
-Base.eltype(x::StateVector) = eltype(x.data)
+Base.eltype(x::StateVector) = eltype(x.data) # FIXME issue #12
 
 # Broadcasting
 Base.broadcastable(x::StateVector) = x
 
 Base.adjoint(a::StateVector) = dagger(a)
+dagger(a::StateVector) = arithmetic_unary_error("Hermitian conjugate", a)
 
 
 ##
 # Operators
 ##
 
-length(a::AbstractOperator) = length(a.basis_l)::Int*length(a.basis_r)::Int
-basis(a::AbstractOperator) = (check_samebases(a); a.basis_l)
-basis(a::AbstractSuperOperator) = (check_samebases(a); a.basis_l[1])
+length(a::AbstractOperator) = length(basis_l(a))::Int*length(basis_r(a))::Int
+basis(a::AbstractOperator) = (check_samebases(basis_l(a), basis_r(a)); basis_l(a))
+basis_l(a::AbstractOperator) = throw(ArgumentError("basis_l() is not defined for this type of operator: $(typeof(a))."))
+basis_r(a::AbstractOperator) = throw(ArgumentError("basis_r() is not defined for this type of operator: $(typeof(a))."))
+directsum(a::AbstractOperator...) = reduce(directsum, a)
 
 # Ensure scalar broadcasting
 Base.broadcastable(x::AbstractOperator) = Ref(x)
@@ -54,20 +59,54 @@ Base.broadcastable(x::AbstractOperator) = Ref(x)
 ^(a::AbstractOperator, b::Integer) = Base.power_by_squaring(a, b)
 
 """
+    addible(a, b)
+
+Check if any two subtypes of `StateVector` or `AbstractOperator`
+ can be added together.
+
+Spcefically this checks whether the left basis of a is equal
+to the left basis of b and whether the right basis of a is equal
+to the right basis of b.
+"""
+addible(a::Union{<:StateVector,<:AbstractOperator},
+        b::Union{<:StateVector,<:AbstractOperator}) = false
+addible(a::AbstractBra, b::AbstractBra) = (basis(a) == basis(b))
+addible(a::AbstractKet, b::AbstractKet) = (basis(a) == basis(b))
+addible(a::AbstractOperator, b::AbstractOperator) =
+    (basis_l(a) == basis_l(b)) && (basis_r(a) == basis_r(b))
+
+
+"""
+    multiplicable(a, b)
+
+Check if any two subtypes of `StateVector` or `AbstractOperator`,
+can be multiplied in the given order.
+"""
+multiplicible(a::Union{<:StateVector,<:AbstractOperator},
+              b::Union{<:StateVector,<:AbstractOperator}) = false
+multiplicable(a::AbstractBra, b::AbstractKet) = (basis(a) == basis(b))
+multiplicable(a::AbstractOperator, b::AbstractKet) = (basis_r(a) == basis(b))
+multiplicable(a::AbstractBra, b::AbstractOperator) = (basis(a) == basis_l(b))
+multiplicable(a::AbstractOperator, b::AbstractOperator) = (basis_r(a) == basis_l(b))
+
+"""
     exp(op::AbstractOperator)
 
 Operator exponential.
 """
 exp(op::AbstractOperator) = throw(ArgumentError("exp() is not defined for this type of operator: $(typeof(op)).\nTry to convert to dense operator first with dense()."))
 
-Base.size(op::AbstractOperator) = (length(op.basis_l),length(op.basis_r))
+Base.size(op::AbstractOperator) = (length(basis_l(op)),length(basis_r(op)))
 function Base.size(op::AbstractOperator, i::Int)
     i < 1 && throw(ErrorException("dimension index is < 1"))
     i > 2 && return 1
-    i==1 ? length(op.basis_l) : length(op.basis_r)
+    i==1 ? length(basis_l(op)) : length(basis_r(op))
 end
 
 Base.adjoint(a::AbstractOperator) = dagger(a)
+dagger(a::AbstractOperator) = arithmetic_unary_error("Hermitian conjugate", a)
 
 conj(a::AbstractOperator) = arithmetic_unary_error("Complex conjugate", a)
 conj!(a::AbstractOperator) = conj(a::AbstractOperator)
+
+ptrace(a::AbstractOperator, index) = arithmetic_unary_error("Partial trace", a)
