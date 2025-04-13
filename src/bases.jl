@@ -93,12 +93,9 @@ function tensor(b1::Basis, b2::CompositeBasis)
 end
 tensor(bases::Basis...) = reduce(tensor, bases)
 
-function Base.:^(b::Basis, N::Integer)
-    if N < 1
-        throw(ArgumentError("Power of a basis is only defined for positive integers."))
-    end
-    tensor([b for i=1:N]...)
-end
+Base.convert(::Type{CompositeBasis{B,S}}, b) where {B,S} = CompositeBasis([b])
+Base.:*(b1::Basis, b2::Basis) = tensor(b1,b2)
+Base.:^(b::Basis, N::Integer) = tensor_pow(b, N)
 
 """
     equal_shape(a, b)
