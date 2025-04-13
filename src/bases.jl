@@ -93,8 +93,6 @@ function tensor(b1::Basis, b2::CompositeBasis)
 end
 tensor(bases::Basis...) = reduce(tensor, bases)
 
-Base.convert(::Type{CompositeBasis{B,S}}, b) where {B,S} = CompositeBasis([b])
-Base.:*(b1::Basis, b2::Basis) = tensor(b1,b2)
 Base.:^(b::Basis, N::Integer) = tensor_pow(b, N)
 
 """
