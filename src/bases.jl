@@ -432,7 +432,16 @@ basis_l(b::KetBraBasis) = b.left
 basis_r(b::KetBraBasis) = b.right
 Base.:(==)(b1::KetBraBasis, b2::KetBraBasis) = (b1.left == b2.left && b1.right == b2.right)
 dimension(b::KetBraBasis) = dimension(b.left)*dimension(b.right)
+tensor(b1::KetBraBasis, b2::KetBraBasis) = KetBraBasis(tensor(b1.left,b2.left), tensor(b1.right, b2.right))
 
+"""
+    ChoiBasis(ref_basis,out_basis)
+
+The Choi basis is used to represent superoperators in the Choi representation
+where the `ref_basis` denotes the ancillary reference system with which an input
+state will be jointly measured in order to accomplish teleportation simulation
+of the channel with the channel's output appearing in the `out_basis` system.
+"""
 struct ChoiBasis{BL<:Basis, BR<:Basis} <: Basis
     ref::BL
     out::BR
@@ -441,7 +450,13 @@ basis_l(b::ChoiBasis) = b.ref
 basis_r(b::ChoiBasis) = b.out
 Base.:(==)(b1::ChoiBasis, b2::ChoiBasis) = (b1.ref == b2.ref && b1.out == b2.out)
 dimension(b::ChoiBasis) = dimension(b.ref)*dimension(b.out)
+tensor(b1::ChoiBasis, b2::ChoiBasis) = ChoiBasis(tensor(b1.ref,b2.ref), tensor(b1.out, b2.out))
 
+function _check_is_spinhalfbasis(b)
+    for i=1:length(b)
+        (b[i] isa SpinBasis && dimension(b[i]) == 2) || throw(ArgumentError("Must have only SpinBasis(1//2) to be compatible with pauli representation"))
+    end
+end
 """
     PauliBasis(N)
 
@@ -452,11 +467,43 @@ The dimension of the basis is 2²ᴺ.
 struct PauliBasis{T<:Integer} <: Basis
     N::T
 end
+function PauliBasis(bl::Basis, br::Basis)
+    bl == br || throw(ArgumentError("Both bases must be equal")) 
+    _check_is_spinhalfbasis(bl)
+    PauliBasis(length(bl))
+end
+basis_l(b::PauliBasis) = SpinBasis(1//2)^b.N
+basis_r(b::PauliBasis) = SpinBasis(1//2)^b.N
 Base.:(==)(b1::PauliBasis, b2::PauliBasis) = b1.N == b2.N
-shape(b::PauliBasis) = fill(4, b.N)
 dimension(b::PauliBasis) = 4^b.N
-Base.length(b::PauliBasis) = b.N
-Base.getindex(b::PauliBasis, i) = PauliBasis(length(i))
+tensor(b1::PauliBasis, b2::PauliBasis) = PauliBasis(b1.N+b2.N)
+
+"""
+    ChiBasis(N)
+
+The basis for a Chi process matrix, which is just the Choi state in the Pauli
+operator basis. However we do not use the `ChoiBasis`, partly to have easier
+dispatch on types, and partly because there's no sensible way to distingish
+between the "reference" and "output" systems as that information is lost in the
+computational to Pauli basis transformation (i.e. two indices into one).
+
+TODO explain better why dimension base is 2, see sec III.E.
+"""
+struct ChiBasis{T<:Integer} <: Basis
+    Nl::T
+    Nr::T
+end
+ChiBasis(N) = ChiBasis(N,N)
+function ChiBasis(bl::Basis, br::Basis)
+    _check_is_spinhalfbasis(bl)
+    _check_is_spinhalfbasis(br)
+    ChiBasis(length(bl), length(br))
+end
+basis_l(b::ChiBasis) = SpinBasis(1//2)^b.Nl
+basis_r(b::ChiBasis) = SpinBasis(1//2)^b.Nr
+Base.:(==)(b1::ChiBasis, b2::ChiBasis) = (b1.Nl == b2.Nl && b1.Nr == b2.Nr)
+dimension(b::ChiBasis) = 2^(b.Nl+b.Nr)
+tensor(b1::ChiBasis, b2::ChiBasis) = ChiBasis(b1.Nl+b2.Nl, b1.Nr+b2.Nr)
 
 """
     HWPauliBasis(N)
