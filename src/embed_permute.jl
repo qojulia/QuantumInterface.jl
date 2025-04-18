@@ -5,7 +5,7 @@
 `operators` is a dictionary `Dict{Vector{Int}, AbstractOperator}`. The integer vector
 specifies in which subsystems the corresponding operator is defined.
 """
-function embed(bl::CompositeBasis, br::CompositeBasis,
+function embed(bl::Basis, br::Basis,
                operators::Dict{<:Vector{<:Integer}, T}) where T<:AbstractOperator
     (length(bl) == length(br)) || throw(ArgumentError("Must have length(bl) == length(br) in embed"))
     N = length(bl)::Int # type assertion to help type inference
@@ -35,16 +35,16 @@ function embed(bl::CompositeBasis, br::CompositeBasis,
         return permutesystems(op, perm)
     end
 end
-embed(basis_l::CompositeBasis, basis_r::CompositeBasis, operators::Dict{<:Integer, T}; kwargs...) where {T<:AbstractOperator} = embed(basis_l, basis_r, Dict([i]=>op_i for (i, op_i) in operators); kwargs...)
-embed(basis::CompositeBasis, operators::Dict{<:Integer, T}; kwargs...) where {T<:AbstractOperator} = embed(basis, basis, operators; kwargs...)
-embed(basis::CompositeBasis, operators::Dict{<:Vector{<:Integer}, T}; kwargs...) where {T<:AbstractOperator} = embed(basis, basis, operators; kwargs...)
+embed(bl::Basis, br::Basis, operators::Dict{<:Integer, T}; kwargs...) where {T<:AbstractOperator} = embed(bl, br, Dict([i]=>op_i for (i, op_i) in operators); kwargs...)
+embed(b::Basis, operators::Dict{<:Integer, T}; kwargs...) where {T<:AbstractOperator} = embed(b, b, operators; kwargs...)
+embed(b::Basis, operators::Dict{<:Vector{<:Integer}, T}; kwargs...) where {T<:AbstractOperator} = embed(b, b, operators; kwargs...)
 
 # The dictionary implementation works for non-DataOperators
-embed(basis_l::CompositeBasis, basis_r::CompositeBasis, indices, op::T) where T<:AbstractOperator = embed(basis_l, basis_r, Dict(indices=>op))
+embed(bl::Basis, br::Basis, indices, op::T) where T<:AbstractOperator = embed(bl, br, Dict(indices=>op))
 
-embed(basis_l::CompositeBasis, basis_r::CompositeBasis, index::Integer, op::AbstractOperator) = embed(basis_l, basis_r, index, [op])
-embed(basis::CompositeBasis, indices, operators::Vector{T}) where {T<:AbstractOperator} = embed(basis, basis, indices, operators)
-embed(basis::CompositeBasis, indices, op::AbstractOperator) = embed(basis, basis, indices, op)
+embed(bl::Basis, br::Basis, index::Integer, op::AbstractOperator) = embed(bl, br, index, [op])
+embed(b::Basis, indices, operators::Vector{T}) where {T<:AbstractOperator} = embed(b, b, indices, operators)
+embed(b::Basis, indices, op::AbstractOperator) = embed(b, b, indices, op)
 
 
 """
@@ -52,7 +52,7 @@ embed(basis::CompositeBasis, indices, op::AbstractOperator) = embed(basis, basis
 
 Tensor product of operators where missing indices are filled up with identity operators.
 """
-function embed(bl::CompositeBasis, br::CompositeBasis,
+function embed(bl::Basis, br::Basis,
                indices, operators::Vector{T}) where T<:AbstractOperator
 
     check_embed_indices(indices) || throw(ArgumentError("Must have unique indices in embed"))

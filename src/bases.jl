@@ -60,7 +60,9 @@ subsystems.
 
 See also [`CompositeBasis`](@ref).
 """
-Base.getindex(b::Basis, i) = i==1 ? b : throw(BoundsError("attempted to access a nonexistent subsystem basis"))
+Base.getindex(b::Basis, i) = i==1 ? b : throw(BoundsError(b,i))
+Base.firstindex(b::Basis) = 1
+Base.lastindex(b::Basis) = length(b)
 
 Base.iterate(b::Basis, state=1) = state > length(b) ? nothing : (b[state], state+1)
 
@@ -109,19 +111,34 @@ Stores the subbases in a vector and creates the shape vector directly from the
 dimensions of these subbases. Instead of creating a CompositeBasis directly,
 `tensor(b1, b2...)` or `b1 ⊗ b2 ⊗ …` should be used.
 """
-struct CompositeBasis{B<:Basis,S<:Integer} <: Basis
-    shape::Vector{S}
+struct CompositeBasis{B<:Basis} <: Basis
     bases::Vector{B}
+    shape::Vector{Int}
+    lengths::Vector{Int}
+    N::Int
+    D::Int
+    function CompositeBasis(bases::Vector{B}) where B<:Basis
+        # to enable this check the the lazy operators in QuantumOpticsBase need to be changed
+        #length(bases) > 1 || throw(ArgumentError("CompositeBasis must only be used for composite systems"))
+        shape_ = mapreduce(shape, vcat, bases)
+        lengths = cumsum(map(length, bases))
+        new{B}(bases, shape_, lengths, lengths[end], prod(shape_))
+    end
 end
-CompositeBasis(bases) = CompositeBasis([dimension(b) for b in bases], bases)
 CompositeBasis(bases::Basis...) = CompositeBasis([bases...])
 CompositeBasis(bases::Tuple) = CompositeBasis([bases...])
 
 Base.:(==)(b1::CompositeBasis, b2::CompositeBasis) = all(((i, j),) -> i == j, zip(b1.bases, b2.bases))
-Base.length(b::CompositeBasis) = length(b.bases)
-Base.getindex(b::CompositeBasis, i) = getindex(b.bases, i)
+Base.length(b::CompositeBasis) = b.N
+function Base.getindex(b::CompositeBasis, i::Integer)
+    (i < 1 || i > b.N) && throw(BoundsError(b,i))
+    bases_idx = findfirst(l -> i<=l, b.lengths) 
+    inner_idx = i - (bases_idx == 1 ? 0 : b.lengths[bases_idx-1])
+    b.bases[bases_idx][inner_idx]
+end
+Base.getindex(b::CompositeBasis, indices) = [b[i] for i in indices]
 shape(b::CompositeBasis) = b.shape
-dimension(b::CompositeBasis) = prod(b.shape)
+dimension(b::CompositeBasis) = b.D
 
 """
     tensor(x::Basis, y::Basis, z::Basis...)
@@ -131,12 +148,39 @@ Create a [`CompositeBasis`](@ref) from the given bases.
 Any given CompositeBasis is expanded so that the resulting CompositeBasis never
 contains another CompositeBasis.
 """
-tensor(b1::Basis, b2::Basis) = CompositeBasis([dimension(b1), dimension(b2)], [b1, b2])
-tensor(b1::CompositeBasis, b2::CompositeBasis) = CompositeBasis([b1.shape; b2.shape], [b1.bases; b2.bases])
-tensor(b1::CompositeBasis, b2::Basis) = CompositeBasis([b1.shape; dimension(b2)], [b1.bases; b2])
-tensor(b1::Basis, b2::CompositeBasis) = CompositeBasis([dimension(b1); b2.shape], [b1; b2.bases])
+tensor(b1::Basis, b2::Basis) = CompositeBasis([b1, b2])
 tensor(bases::Basis...) = reduce(tensor, bases)
 tensor(basis::Basis) = basis
+
+function tensor(b1::CompositeBasis, b2::CompositeBasis)
+    if typeof(b1.bases[end]) == typeof(b2.bases[1])
+        t = tensor(b1.bases[end], b2.bases[1])
+        if !(t isa CompositeBasis)
+            return CompositeBasis([b1.bases[1:end-1]; t;  b2.bases[2:end]])
+        end
+    end
+    return CompositeBasis([b1.bases; b2.bases])
+end
+
+function tensor(b1::CompositeBasis, b2::Basis)
+    if b1.bases[end] isa typeof(b2)
+        t = tensor(b1.bases[end], b2)
+        if !(t isa CompositeBasis)
+            return CompositeBasis([b1.bases[1:end-1]; t])
+        end
+    end
+    return CompositeBasis([b1.bases; b2])
+end
+
+function tensor(b1::Basis, b2::CompositeBasis)
+    if b2.bases[1] isa typeof(b1)
+        t = tensor(b1, b2.bases[1])
+        if !(t isa CompositeBasis)
+            return CompositeBasis([t; b2[2:end]])
+        end
+    end
+    return CompositeBasis([b1; b2.bases])
+end
 
 Base.:^(b::Basis, N::Integer) = tensor_pow(b, N)
 
@@ -185,7 +229,8 @@ directsum(b1::Basis, b2::SumBasis) = SumBasis([dimension(b1); b2.shape], [b1; b2
 directsum(bases::Basis...) = reduce(directsum, bases)
 directsum(basis::Basis) = basis
 
-embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
+# TODO: what to do about embed for SumBasis?
+#embed(b::SumBasis, indices, ops) = embed(b, b, indices, ops)
 
 ##
 # Basis checks
@@ -267,13 +312,13 @@ Reduced basis, state or operator on the specified subsystems.
 The `indices` argument, which can be a single integer or a vector of integers,
 specifies which subsystems are kept. At least one index must be specified.
 """
-function reduced(b::CompositeBasis, indices)
+function reduced(b::Basis, indices)
     if length(indices)==0
         throw(ArgumentError("At least one subsystem must be specified in reduced."))
     elseif length(indices)==1
-        return b.bases[indices[1]]
+        return b[indices[1]]
     else
-        return CompositeBasis(b.shape[indices], b.bases[indices])
+        return tensor(b[indices]...)
     end
 end
 
@@ -287,13 +332,13 @@ specifies which subsystems are traced out. The number of indices has to be
 smaller than the number of subsystems, i.e. it is not allowed to perform a
 full trace.
 """
-function ptrace(b::CompositeBasis, indices)
-    J = [i for i in 1:length(b.bases) if i ∉ indices]
+function ptrace(b::Basis, indices)
+    J = [i for i in 1:length(b) if i ∉ indices]
     length(J) > 0 || throw(ArgumentError("Tracing over all indices is not allowed in ptrace."))
     reduced(b, J)
 end
 
-_index_complement(b::CompositeBasis, indices) = complement(length(b.bases), indices)
+_index_complement(b::Basis, indices) = complement(length(b), indices)
 reduced(a, indices) = ptrace(a, _index_complement(basis(a), indices))
 
 """
@@ -304,10 +349,10 @@ Change the ordering of the subsystems of the given object.
 For a permutation vector `[2,1,3]` and a given object with basis `[b1, b2, b3]`
 this function results in `[b2, b1, b3]`.
 """
-function permutesystems(b::CompositeBasis, perm)
+function permutesystems(b::Basis, perm)
     (length(b) == length(perm)) || throw(ArgumentError("Must have length(b) == length(perm) in permutesystems"))
     isperm(perm) || throw(ArgumentError("Must pass actual permeutation to permutesystems"))
-    CompositeBasis(b.shape[perm], b.bases[perm])
+    tensor(b.bases[perm]...)
 end
 
 
@@ -374,9 +419,9 @@ Base.:(==)(b1::NLevelBasis, b2::NLevelBasis) = b1.N == b2.N
 dimension(b::NLevelBasis) = b.N
 
 """
-    SpinBasis(n)
+    SpinBasis(n, N=1)
 
-Basis for spin-n particles.
+Basis for spin-`n` particles over `N` systems.
 
 The basis can be created for arbitrary spin numbers by using a rational number,
 e.g. `SpinBasis(3//2)`. The Pauli operators are defined for all possible spin
@@ -385,19 +430,31 @@ for a `SpinBasis`.
 """
 struct SpinBasis{T<:Integer} <: Basis
     spinnumber::Rational{T}
-    function SpinBasis(spinnumber::Rational{T}) where T
+    D::T
+    N::T
+    function SpinBasis(spinnumber::Rational{T}, N=1) where T
         n = numerator(spinnumber)
         d = denominator(spinnumber)
         d==2 || d==1 || throw(ArgumentError("Can only construct integer or half-integer spin basis"))
         n >= 0 || throw(ArgumentError("Can only construct positive spin basis"))
-        N = numerator(spinnumber*2 + 1)
-        new{T}(spinnumber)
+        D = numerator(spinnumber*2 + 1)
+        new{T}(spinnumber, D, N)
     end
 end
 SpinBasis(spinnumber) = SpinBasis(convert(Rational{Int}, spinnumber))
 
-Base.:(==)(b1::SpinBasis, b2::SpinBasis) = b1.spinnumber==b2.spinnumber
-dimension(b::SpinBasis) = numerator(b.spinnumber*2 + 1)
+Base.:(==)(b1::SpinBasis, b2::SpinBasis) = b1.D==b2.D && b1.N == b2.N
+Base.length(b::SpinBasis) = b.N
+Base.getindex(b::SpinBasis, i) = SpinBasis(b.spinnumber, length(i))
+shape(b::SpinBasis) = fill(b.D, b.N)
+dimension(b::SpinBasis) = b.D^b.N
+function tensor(b1::SpinBasis, b2::SpinBasis)
+    if b1.spinnumber == b2.spinnumber
+        return SpinBasis(b1.spinnumber, b1.N+b2.N)
+    else
+        return CompositeBasis([b1, b2])
+    end
+end
 
 """
     spinnumber(b::SpinBasis)
@@ -554,6 +611,9 @@ function show(stream::IO, x::SpinBasis)
     else
         write(stream, "Spin($n/$d)")
     end
+    if x.N > 1
+        write(stream, "^$(x.N)")
+    end
 end
 
 function show(stream::IO, x::FockBasis)
@@ -584,9 +644,9 @@ function show(stream::IO, x::KetBraBasis)
 end
 
 function show(stream::IO, x::PauliBasis)
-    write(stream, "Pauli(N=$(x.N)")
+    write(stream, "Pauli(N=$(x.N))")
 end
 
 function show(stream::IO, x::HWPauliBasis)
-    write(stream, "Pauli($(x.shape)")
+    write(stream, "Pauli($(x.shape))")
 end
