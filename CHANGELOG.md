@@ -3,6 +3,7 @@
 ## v0.3.9 - 2025-04-03
 
 - Deprecate `equal_bases`.
+- Add `GabsRepr` type for representations in Gabs.
 
 ## v0.3.8 - 2025-03-08
 
