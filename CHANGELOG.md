@@ -2,6 +2,7 @@
 
 ## v0.3.9 - 2025-04-20
 
+- Implement general `tensor_pow` via `power_by_squaring`
 - Improvements to implementation of `entropy_vn`.
 - Deprecate `equal_bases`.
 - Add `GabsRepr` type for representations in Gabs.
