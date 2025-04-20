@@ -1,9 +1,13 @@
 # News
 
-## v0.3.9 - 2025-03-23
-- Resolve issue with `QuantumOpticsBase.jl` implementation of `entropy_vn`.
+## v0.3.9 - 2025-04-20
+
+- Improvements to implementation of `entropy_vn`.
+- Deprecate `equal_bases`.
+- Add `GabsRepr` type for representations in Gabs.
 
 ## v0.3.8 - 2025-03-08
+
 - Introduce `metrics.jl` file for metric declarations.
 
 ## v0.3.7 - 2025-01-16

@@ -7,7 +7,7 @@ specifies in which subsystems the corresponding operator is defined.
 """
 function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
                operators::Dict{<:Vector{<:Integer}, T}) where T<:AbstractOperator
-    @assert length(basis_l.bases) == length(basis_r.bases)
+    (nsubsystems(basis_l) == nsubsystems(basis_r)) || throw(ArgumentError("Must have nsubsystems(bl) == nsubsystems(br) in embed"))
     N = length(basis_l.bases)::Int # type assertion to help type inference
     if length(operators) == 0
         return identityoperator(T, basis_l, basis_r)
@@ -55,11 +55,11 @@ Tensor product of operators where missing indices are filled up with identity op
 function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
                indices, operators::Vector{T}) where T<:AbstractOperator
 
-    @assert check_embed_indices(indices)
+    check_embed_indices(indices) || throw(ArgumentError("Must have unique indices in embed"))
+    (nsubsystems(basis_l) == nsubsystems(basis_r)) || throw(ArgumentError("Must have nsubsystems(bl) == nsubsystems(br) in embed"))
+    (length(indices) == length(operators)) || throw(ArgumentError("Must have length(indices) == length(operators) in embed"))
 
-    N = length(basis_l.bases)
-    @assert length(basis_r.bases) == N
-    @assert length(indices) == length(operators)
+    N = nsubsystems(basis_l)
 
     # Embed all single-subspace operators.
     idxop_sb = [x for x in zip(indices, operators) if x[1] isa Integer]
@@ -67,8 +67,8 @@ function embed(basis_l::CompositeBasis, basis_r::CompositeBasis,
     ops_sb = [x[2] for x in idxop_sb]
 
     for (idxsb, opsb) in zip(indices_sb, ops_sb)
-        (opsb.basis_l == basis_l.bases[idxsb]) || throw(IncompatibleBases())
-        (opsb.basis_r == basis_r.bases[idxsb]) || throw(IncompatibleBases())
+        (opsb.basis_l == basis_l.bases[idxsb]) || throw(IncompatibleBases()) # FIXME issue #12
+        (opsb.basis_r == basis_r.bases[idxsb]) || throw(IncompatibleBases()) # FIXME issue #12
     end
 
     S = length(operators) > 0 ? mapreduce(eltype, promote_type, operators) : Any
