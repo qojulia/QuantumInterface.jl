@@ -1,7 +1,8 @@
 # News
 
-## v0.3.9 - 2025-04-03
+## v0.3.9 - 2025-04-20
 
+- Improvements to implementation of `entropy_vn`.
 - Deprecate `equal_bases`.
 - Add `GabsRepr` type for representations in Gabs.
 
