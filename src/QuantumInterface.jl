@@ -45,7 +45,7 @@ function tensor end
 const ⊗ = tensor
 tensor() = throw(ArgumentError("Tensor function needs at least one argument."))
 
-function tensor_pow end # TODO should Base.^ be the same as tensor_pow?
+function tensor_pow end
 
 function traceout! end
 
