@@ -103,4 +103,6 @@ include("express.jl")
 
 include("metrics.jl")
 
+include("deprecated.jl")
+
 end # module
