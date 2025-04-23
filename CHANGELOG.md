@@ -1,5 +1,9 @@
 # News
 
+## v0.3.10 - 2025-04-21
+
+- Deprecate `PauliBasis` as it is identical to `SpinBasis(1//2)^N` but without the compatibility with `CompositeBasis`.
+
 ## v0.3.9 - 2025-04-20
 
 - Implement general `tensor_pow` via `power_by_squaring`
