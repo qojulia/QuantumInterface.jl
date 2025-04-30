@@ -12,7 +12,7 @@ vec(op::AbstractOperator) = throw(ArgumentError("vec() is not defined for this t
 
 Converta a vectorized operator to a normal operator.
 """
-unvec(op::AbstractOperator) = throw(ArgumentError("unvec() is not defined for this type of operator: $(typeof(op))."))
+unvec(op::AbstractKet) = throw(ArgumentError("unvec() is not defined for this type of operator: $(typeof(op))."))
 
 """
     super(op)
@@ -34,6 +34,7 @@ choi(op::AbstractOperator) = throw(ArgumentError("choi() is not defined for this
 Converts to kraus operator sum representation
 """
 kraus(op::AbstractOperator) = throw(ArgumentError("kraus() is not defined for this type of operator: $(typeof(op))."))
+kraus(op::Vector{AbstractOperator}) = throw(ArgumentError("kraus() is not defined for this type of operator: $(typeof(op))."))
 
 """
     stinespring(op)
@@ -70,7 +71,10 @@ For operators ``A``, ``B`` the relation
 
 holds. `op` can be a dense or a sparse operator.
 """
-spre(op::AbstractOperator) = throw(ArgumentError("spre() is not defined for this type of operator: $(typeof(op))."))
+function spre(op::AbstractOperator)
+    multiplicable(op, op) || throw(ArgumentError("It's not clear what spre of a non-square operator should be. See issue #113"))
+    sprepost(op, identityoperator(op))
+end
 
 """
     spost(op)
@@ -85,7 +89,10 @@ For operators ``A``, ``B`` the relation
 
 holds. `op` can be a dense or a sparse operator.
 """
-spost(op::AbstractOperator) = throw(ArgumentError("spost() is not defined for this type of operator: $(typeof(op))."))
+function spost(op::AbstractOperator)
+    multiplicable(op, op) || throw(ArgumentError("It's not clear what spost of a non-square operator should be. See issue #113"))
+    sprepost(identityoperator(op), op)
+end
 
 """
     sprepost(op)
@@ -101,6 +108,7 @@ For operators ``A``, ``B``, ``C`` the relation
 holds. `A` ond `B` can be dense or a sparse operators.
 """
 sprepost(A::AbstractOperator, B::AbstractOperator) = throw(ArgumentError("sprepost() is not defined for these types of operator: $(typeof(A)) and  $(typeof(B))."))
+
 
 function _check_input(H::AbstractOperator, J::Vector, Jdagger::Vector, rates)
     for j=J

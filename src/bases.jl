@@ -16,6 +16,8 @@ these types (i.e. do not access the fields of the structs directly).
 """
 abstract type Basis end
 
+abstract type OperatorBasis <: Basis end
+
 """
     basis(a)
 
@@ -130,6 +132,8 @@ CompositeBasis(bases::Tuple) = CompositeBasis([bases...])
 
 Base.:(==)(b1::CompositeBasis, b2::CompositeBasis) = all(((i, j),) -> i == j, zip(b1.bases, b2.bases))
 Base.length(b::CompositeBasis) = b.N
+# should probably factor this out and think about "proper" compression...
+# also add a labeled basis as a "layer" on top in linear indices...
 function Base.getindex(b::CompositeBasis, i::Integer)
     (i < 1 || i > b.N) && throw(BoundsError(b,i))
     bases_idx = findfirst(l -> i<=l, b.lengths) 
@@ -480,7 +484,7 @@ Ket basis which practically means flipping the Bra to a Ket. The operator itself
 is then represented as a "Super-Bra" in this basis and corresponds to
 column-stacking its matrix.
 """
-struct KetBraBasis{BL<:Basis, BR<:Basis} <: Basis
+struct KetBraBasis{BL<:Basis, BR<:Basis} <: OperatorBasis
     left::BL
     right::BR
 end
@@ -499,7 +503,7 @@ where the `ref_basis` denotes the ancillary reference system with which an input
 state will be jointly measured in order to accomplish teleportation simulation
 of the channel with the channel's output appearing in the `out_basis` system.
 """
-struct ChoiBasis{BL<:Basis, BR<:Basis} <: Basis
+struct ChoiBasis{BL<:Basis, BR<:Basis} <: OperatorBasis
     ref::BL
     out::BR
 end
@@ -509,11 +513,6 @@ Base.:(==)(b1::ChoiBasis, b2::ChoiBasis) = (b1.ref == b2.ref && b1.out == b2.out
 dimension(b::ChoiBasis) = dimension(b.ref)*dimension(b.out)
 tensor(b1::ChoiBasis, b2::ChoiBasis) = ChoiBasis(tensor(b1.ref,b2.ref), tensor(b1.out, b2.out))
 
-function _check_is_spinhalfbasis(b)
-    for i=1:length(b)
-        (b[i] isa SpinBasis && dimension(b[i]) == 2) || throw(ArgumentError("Must have only SpinBasis(1//2) to be compatible with pauli representation"))
-    end
-end
 """
     PauliBasis(N)
 
@@ -521,13 +520,8 @@ The standard Pauli operator basis for an `N` qubit space. This consists of
 tensor products of the Pauli matrices I, X, Y, Z, in that order for each qubit.
 The dimension of the basis is 2²ᴺ.
 """
-struct PauliBasis{T<:Integer} <: Basis
+struct PauliBasis{T<:Integer} <: OperatorBasis
     N::T
-end
-function PauliBasis(bl::Basis, br::Basis)
-    bl == br || throw(ArgumentError("Both bases must be equal")) 
-    _check_is_spinhalfbasis(bl)
-    PauliBasis(length(bl))
 end
 basis_l(b::PauliBasis) = SpinBasis(1//2)^b.N
 basis_r(b::PauliBasis) = SpinBasis(1//2)^b.N
@@ -546,15 +540,9 @@ computational to Pauli basis transformation (i.e. two indices into one).
 
 TODO explain better why dimension base is 2, see sec III.E.
 """
-struct ChiBasis{T<:Integer} <: Basis
+struct ChiBasis{T<:Integer} <: OperatorBasis
     Nl::T
     Nr::T
-end
-ChiBasis(N) = ChiBasis(N,N)
-function ChiBasis(bl::Basis, br::Basis)
-    _check_is_spinhalfbasis(bl)
-    _check_is_spinhalfbasis(br)
-    ChiBasis(length(bl), length(br))
 end
 basis_l(b::ChiBasis) = SpinBasis(1//2)^b.Nl
 basis_r(b::ChiBasis) = SpinBasis(1//2)^b.Nr
@@ -573,15 +561,15 @@ the index is written in base-N and thus has only two digits, the least
 significant bit gives powers of Z (the clock matrix), and most significant bit
 gives powers of X (the shfit matrix).
 """
-struct HWPauliBasis{T<:Integer} <: Basis
+struct HWPauliBasis{T<:Integer} <: OperatorBasis
     shape::Vector{T}
 end
 HWPauliBasis(N::Integer) = HWPauliBasis([N])
+basis_l(b::HWPauliBasis) = tensor(NLevelBasis.(b.shape)...)
+basis_r(b::HWPauliBasis) = tensor(NLevelBasis.(b.shape)...)
 Base.:(==)(b1::HWPauliBasis, b2::HWPauliBasis) = b1.shape == b2.shape
-shape(b::HWPauliBasis) = [n^2 for n in b.shape]
 dimension(b::HWPauliBasis) = prod([n^2 for n in b.shape])
-Base.length(b::HWPauliBasis) = length(b.shape)
-Base.getindex(b::HWPauliBasis, i) = HWPauliBasis([b.shape[i]...])
+tensor(b1::HWPauliBasis, b2::HWPauliBasis) = HWPauliBasis([b1.shape; b2.shape])
 
 
 ##
