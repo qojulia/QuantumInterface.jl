@@ -1,47 +1,57 @@
 """
-Abstract base class for `Bra` and `Ket` states.
+Abstract type for all state vectors.
 
-The state vector class stores the coefficients of an abstract state
-in respect to a certain basis. These coefficients are stored in the
-`data` field and the basis is defined in the `basis`
-field.
+This type represents any abstract pure quantum state as given by an element of a
+Hilbert space with respect to a certain basis. To be compatible with methods
+defined in `QuantumInterface`, all subtypes must implement the `basis` method
+which should return a subtype of the abstract [`Basis`](@ref) type.
+
+See also [`AbstractKet`](@ref) and [`AbstractBra`](@ref).
 """
-abstract type StateVector{B,T} end
-abstract type AbstractKet{B,T} <: StateVector{B,T} end
-abstract type AbstractBra{B,T} <: StateVector{B,T} end
+abstract type StateVector end
 
 """
-Abstract base class for all operators.
+Abstract type for `Ket` states.
 
-All deriving operator classes have to define the fields
-`basis_l` and `basis_r` defining the left and right side bases.
+This subtype of [`StateVector`](@ref) is meant to represent `Ket` states which
+are related to their dual `Bra` by the conjugate transpose.
+
+See also [`AbstractBra`](@ref).
+"""
+abstract type AbstractKet <: StateVector end
+
+"""
+Abstract type for `Bra` states.
+
+This subtype of [`StateVector`](@ref) is meant to represent `Bra` states which
+are related to their dual `Ket` by the conjugate transpose.
+
+See also [`AbstractBra`](@ref).
+"""
+abstract type AbstractBra <: StateVector end
+
+"""
+Abstract type for all operators and super operators.
+
+This type represents any abstract mixed quantum state given by a density
+operator (or superoperator) mapping between two Hilbert spaces.  All subtypes
+must implement the [`basis_l`](@ref) and [`basis_r`](@ref) methods which return
+subtypes of [`Basis`](@ref) representing the left and right bases that the
+operator maps between. A subtype is considered compatible with multiplication by
+a subtype of [`AbstractBra`](@ref) defined in same left basis as the operator
+and a subtype of [`AbstractKet`](@ref) defined in the same right basis as the
+operator.
 
 For fast time evolution also at least the function
 `mul!(result::Ket,op::AbstractOperator,x::Ket,alpha,beta)` should be
-implemented. Many other generic multiplication functions can be defined in
-terms of this function and are provided automatically.
+implemented. Many other generic multiplication functions can be defined in terms
+of this function and are provided automatically.
 """
-abstract type AbstractOperator{BL,BR} end
-
-"""
-Base class for all super operator classes.
-
-Super operators are bijective mappings from operators given in one specific
-basis to operators, possibly given in respect to another, different basis.
-To embed super operators in an algebraic framework they are defined with a
-left hand basis `basis_l` and a right hand basis `basis_r` where each of
-them again consists of a left and right hand basis.
-```math
-A_{bl_1,bl_2} = S_{(bl_1,bl_2) ↔ (br_1,br_2)} B_{br_1,br_2}
-\\\\
-A_{br_1,br_2} = B_{bl_1,bl_2} S_{(bl_1,bl_2) ↔ (br_1,br_2)}
-```
-"""
-abstract type AbstractSuperOperator{B1,B2} end
+abstract type AbstractOperator end
 
 function summary(stream::IO, x::AbstractOperator)
-    print(stream, "$(typeof(x).name.name)(dim=$(length(x.basis_l))x$(length(x.basis_r)))\n")
-    if samebases(x)
+    print(stream, "$(typeof(x).name.name)(dim=$(dimension(x.basis_l))x$(dimension(x.basis_r)))\n")
+    if multiplicable(x,x)
         print(stream, "  basis: ")
         show(stream, basis(x))
     else
