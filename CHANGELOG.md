@@ -1,5 +1,9 @@
 # News
 
+## v0.4.0 - 2025-05-04
+
+- Move methods which access a `.data` field but are defined only on an abstract types to QuantumOpticsBase
+
 ## v0.3.10 - 2025-04-21
 
 - Deprecate `PauliBasis` as it is identical to `SpinBasis(1//2)^N` but without the compatibility with `CompositeBasis`.
