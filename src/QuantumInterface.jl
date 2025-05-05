@@ -19,6 +19,8 @@ function embed end
 
 function entanglement_entropy end
 
+function mutual_information end
+
 function expect end
 
 function identityoperator end
