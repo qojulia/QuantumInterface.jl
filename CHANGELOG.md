@@ -1,5 +1,9 @@
 # News
 
+## dev
+
+- Declare `mutual_information`, without any implemented methods.
+
 ## v0.3.10 - 2025-04-21
 
 - Deprecate `PauliBasis` as it is identical to `SpinBasis(1//2)^N` but without the compatibility with `CompositeBasis`.
@@ -62,4 +66,3 @@
 ## v0.1.0
 
 - first release, bringing over interfaces from `QuantumOpticsBase`, `QuantumClifford`, `QuantumSavory`, and `QuantumSymbolics`
-
