@@ -1,7 +1,11 @@
 # Common error messages
-arithmetic_unary_error(funcname, x::AbstractOperator) = throw(ArgumentError("$funcname is not defined for this type of operator: $(typeof(x)).\nTry to convert to another operator type first with e.g. dense() or sparse()."))
-arithmetic_binary_error(funcname, a::AbstractOperator, b::AbstractOperator) = throw(ArgumentError("$funcname is not defined for this combination of types of operators: $(typeof(a)), $(typeof(b)).\nTry to convert to a common operator type first with e.g. dense() or sparse()."))
-addnumbererror() = throw(ArgumentError("Can't add or subtract a number and an operator. You probably want 'op + identityoperator(op)*x'."))
+# We use these error messages instead of:
+# - MethodErrors, which are not very informative about the fact that there might very well be a convenient conversion to the desired type
+# - error hints, which are a bit too cumbersome to register for so many different types and functions
+# TODO use error hints instead of these custom error messages
+arithmetic_unary_error(funcname, x::AbstractOperator) = throw(ArgumentError("$funcname is not defined for this type of operator: $(typeof(x)).\nYou can try to convert to another operator type first, e.g. with `dense()` or `sparse()` from `QuantumOptics` or other type conversions from other packages."))
+arithmetic_binary_error(funcname, a::AbstractOperator, b::AbstractOperator) = throw(ArgumentError("$funcname is not defined for this combination of types of operators: $(typeof(a)), $(typeof(b)).\nYou can try to convert to another (common) operator type first, e.g. with `dense()` or `sparse()` from `QuantumOptics` or other type conversions from other packages."))
+addnumbererror() = throw(ArgumentError("Can't add or subtract a number and an operator. You probably want `op + identityoperator(op)*x`."))
 
 
 ##
