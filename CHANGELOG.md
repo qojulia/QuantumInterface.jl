@@ -1,8 +1,9 @@
 # News
 
-## v0.4.0 - 2025-05-04
+## v0.4.0 - dev
 
-- Move methods which access a `.data` field but are defined only on an abstract types to QuantumOpticsBase
+- **(breaking)** Move methods which access a `.data` field but are defined only on an abstract types to QuantumOpticsBase
+- Declare `mutual_information`, without any implemented methods.
 
 ## v0.3.10 - 2025-04-21
 
@@ -66,4 +67,3 @@
 ## v0.1.0
 
 - first release, bringing over interfaces from `QuantumOpticsBase`, `QuantumClifford`, `QuantumSavory`, and `QuantumSymbolics`
-
