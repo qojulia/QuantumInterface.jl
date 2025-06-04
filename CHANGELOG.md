@@ -1,7 +1,8 @@
 # News
 
-## dev
+## v0.4.0 - dev
 
+- **(breaking)** Move methods which access a `.data` field but are defined only on an abstract types to QuantumOpticsBase
 - Declare `mutual_information`, without any implemented methods.
 
 ## v0.3.10 - 2025-04-21
