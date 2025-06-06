@@ -1,5 +1,9 @@
 # News
 
+## v0.4.1 - 2025-06-06
+
+- Define `tensor(states::StateVector...) = reduce(tensor, states)` method.
+
 ## v0.4.0 - 2025-06-04
 
 - **(breaking)** Move methods which access a `.data` field but are defined only on an abstract types to QuantumOpticsBase
