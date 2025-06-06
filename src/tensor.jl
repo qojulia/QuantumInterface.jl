@@ -7,6 +7,7 @@ tensor(a::AbstractOperator, b::AbstractOperator) = arithmetic_binary_error("Tens
 tensor(op::AbstractOperator) = op
 tensor(operators::AbstractOperator...) = reduce(tensor, operators)
 tensor(state::StateVector) = state
+tensor(states::StateVector...) = reduce(tensor, states)
 tensor(states::Vector{T}) where T<:StateVector = reduce(tensor, states)
 
 """
