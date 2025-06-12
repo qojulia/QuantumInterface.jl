@@ -25,7 +25,9 @@ express(s, repr::AbstractRepresentation) = express(s, repr, UseAsState())
 """Representation using kets, bras, density matrices, and superoperators governed by `QuantumOptics.jl`."""
 Base.@kwdef struct QuantumOpticsRepr <: AbstractRepresentation 
     cutoff::Int = 2
+    lazy::Bool = false
 end
+QuantumOpticsRepr(; cutoff=2, lazy=false) = QuantumOpticsRepr(cutoff, lazy)
 """Similar to `QuantumOpticsRepr`, but using trajectories instead of superoperators."""
 struct QuantumMCRepr <: AbstractRepresentation end
 """Representation using tableaux governed by `QuantumClifford.jl`"""
