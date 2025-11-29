@@ -8,3 +8,18 @@ directsum(a::AbstractOperator...) = reduce(directsum, a)
 ptrace(a::AbstractOperator, index) = arithmetic_unary_error("Partial trace", a)
 _index_complement(b::CompositeBasis, indices) = complement(length(b.bases), indices)
 reduced(a, indices) = ptrace(a, _index_complement(basis(a), indices))
+
+# Commutator and anticommutator operations
+"""
+    commutator(A, B)
+
+Compute the commutator `[A, B] = AB - BA` of two operators.
+"""
+commutator(A::AbstractOperator, B::AbstractOperator) = A*B - B*A
+
+"""
+    anticommutator(A, B)
+
+Compute the anticommutator `{A, B} = AB + BA` of two operators.
+"""
+anticommutator(A::AbstractOperator, B::AbstractOperator) = A*B + B*A

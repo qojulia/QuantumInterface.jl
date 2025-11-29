@@ -53,6 +53,20 @@ function traceout! end
 
 function variance end
 
+"""
+    commutator(A, B)
+
+Compute the commutator [A, B] = AB - BA of two operators.
+"""
+function commutator end
+
+"""
+    anticommutator(A, B)
+
+Compute the anticommutator {A, B} = AB + BA of two operators.
+"""
+function anticommutator end
+
 ##
 # Qubit specific
 ##
