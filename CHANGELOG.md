@@ -1,5 +1,9 @@
 # News
 
+## v0.4.2 - 2025-11-29
+
+- Define `commutator` and `anticommutator`.
+
 ## v0.4.1 - 2025-06-06
 
 - Define `tensor(states::StateVector...) = reduce(tensor, states)` method.

@@ -13,41 +13,13 @@ reduced(a, indices) = ptrace(a, _index_complement(basis(a), indices))
 """
     commutator(A, B)
 
-Compute the commutator [A, B] = AB - BA of two operators.
-
-# Arguments
-- `A::AbstractOperator`: First operator
-- `B::AbstractOperator`: Second operator
-
-# Returns
-The commutator [A, B] = AB - BA
-
-# Examples
-```julia
-σx = sigmax()
-σy = sigmay()
-comm = commutator(σx, σy)  # Returns 2i*σz
-```
+Compute the commutator `[A, B] = AB - BA` of two operators.
 """
 commutator(A::AbstractOperator, B::AbstractOperator) = A*B - B*A
 
 """
     anticommutator(A, B)
 
-Compute the anticommutator {A, B} = AB + BA of two operators.
-
-# Arguments
-- `A::AbstractOperator`: First operator
-- `B::AbstractOperator`: Second operator
-
-# Returns
-The anticommutator {A, B} = AB + BA
-
-# Examples
-```julia
-σx = sigmax()
-σz = sigmaz()
-anticomm = anticommutator(σx, σz)  # Returns zero for Pauli matrices
-```
+Compute the anticommutator `{A, B} = AB + BA` of two operators.
 """
 anticommutator(A::AbstractOperator, B::AbstractOperator) = A*B + B*A
