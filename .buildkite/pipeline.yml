@@ -1,0 +1,43 @@
+env:
+  JULIA_NUM_THREADS: auto
+
+steps:
+  - label: "QuantumInterface Tests - {{matrix.LABEL}}"
+    plugins:
+      - JuliaCI/julia#v1:
+          version: "1"
+      - JuliaCI/julia-test#v1:
+      - JuliaCI/julia-coverage#v1:
+          codecov: true
+    command:
+      - echo "Julia depot path $${JULIA_DEPOT_PATH}"
+    env:
+      JET_TEST: "{{matrix.JET_TEST}}"
+    agents:
+      queue: "{{matrix.QUEUE}}"
+    matrix:
+      setup:
+        LABEL: ["base tests"]
+        QUEUE: ["default"]
+        JET_TEST: ["false"]
+      adjustments:
+        - with:
+            LABEL: "JET"
+            QUEUE: default
+            JET_TEST: true
+
+  - label: "Downstream Tests - {{matrix.PACKAGE}}"
+    plugins:
+      - JuliaCI/julia#v1:
+          version: "1"
+    command:
+      - echo "Julia depot path $${JULIA_DEPOT_PATH}"
+      - julia --project=$(mktemp -d) -e '
+        using Pkg;
+        pkg"dev .";
+        Pkg.add("{{matrix.PACKAGE}}");
+        Pkg.build("{{matrix.PACKAGE}}");
+        Pkg.test("{{matrix.PACKAGE}}");'
+    matrix:
+      setup:
+        PACKAGE: ["QuantumOpticsBase", "QuantumOptics", "QuantumSymbolics", "QuantumClifford", "QuantumSavory"]
