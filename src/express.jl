@@ -22,10 +22,18 @@ express(s, repr::AbstractRepresentation) = express(s, repr, UseAsState())
 # Commonly used representations -- interfaces for each one defined in separate packages
 ##
 
-"""Representation using kets, bras, density matrices, and superoperators governed by `QuantumOptics.jl`."""
-Base.@kwdef struct QuantumOpticsRepr <: AbstractRepresentation 
+"""Representation using kets, bras, density matrices, and superoperators governed by `QuantumOptics.jl`.
+
+Set `lazy=true` to express symbolic sums, products, and tensor products using the lazy operator
+types from `QuantumOpticsBase` (`LazySum`, `LazyProduct`, `LazyTensor`) where the basis structure
+supports it, instead of eagerly materializing dense operators."""
+Base.@kwdef struct QuantumOpticsRepr <: AbstractRepresentation
     cutoff::Int = 2
+    lazy::Bool = false
 end
+# Preserve the single positional-argument constructor `QuantumOpticsRepr(cutoff)`, which the
+# `@kwdef`-generated all-positional constructor would otherwise shadow once a second field exists.
+QuantumOpticsRepr(cutoff::Int) = QuantumOpticsRepr(; cutoff)
 """Similar to `QuantumOpticsRepr`, but using trajectories instead of superoperators."""
 struct QuantumMCRepr <: AbstractRepresentation end
 """Representation using tableaux governed by `QuantumClifford.jl`"""

@@ -1,5 +1,9 @@
 # News
 
+## v0.4.3 - 2026-06-04
+
+- Add a `lazy::Bool=false` option to `QuantumOpticsRepr`. The existing `QuantumOpticsRepr()` and `QuantumOpticsRepr(cutoff)` constructors are preserved.
+
 ## v0.4.2 - 2025-11-29
 
 - Define `commutator` and `anticommutator`.
