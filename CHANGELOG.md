@@ -1,5 +1,9 @@
 # News
 
+## v0.4.3 - 2026-06-08
+
+- Add a `lazy` option to `QuantumOpticsRepr`.
+
 ## v0.4.2 - 2025-11-29
 
 - Define `commutator` and `anticommutator`.
