@@ -27,10 +27,11 @@ express(s, repr::AbstractRepresentation) = express(s, repr, UseAsState())
 Set `lazy=true` to request structure-preserving lazy operators where supported by
 the target package.
 """
-Base.@kwdef struct QuantumOpticsRepr <: AbstractRepresentation 
-    cutoff::Int = 2
-    lazy::Bool = false
+struct QuantumOpticsRepr <: AbstractRepresentation
+    cutoff::Int
+    lazy::Bool
 end
+QuantumOpticsRepr(; cutoff::Int=2, lazy::Bool=false) = QuantumOpticsRepr(cutoff, lazy)
 QuantumOpticsRepr(cutoff::Int) = QuantumOpticsRepr(cutoff=cutoff)
 """Similar to `QuantumOpticsRepr`, but using trajectories instead of superoperators."""
 struct QuantumMCRepr <: AbstractRepresentation end

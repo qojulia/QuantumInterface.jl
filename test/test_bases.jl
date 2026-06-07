@@ -53,3 +53,14 @@ comp2 = tensor(b2, b1, b3)
 @test !multiplicable(comp1, b1 ⊗ b2 ⊗ NLevelBasis(prod(b3.shape)))
 
 end # testset
+
+@testset "representations" begin
+    @test QuantumInterface.QuantumOpticsRepr().cutoff == 2
+    @test QuantumInterface.QuantumOpticsRepr().lazy == false
+    @test QuantumInterface.QuantumOpticsRepr(5).cutoff == 5
+    @test QuantumInterface.QuantumOpticsRepr(5).lazy == false
+    @test QuantumInterface.QuantumOpticsRepr(lazy=true).cutoff == 2
+    @test QuantumInterface.QuantumOpticsRepr(lazy=true).lazy == true
+    @test QuantumInterface.QuantumOpticsRepr(cutoff=4, lazy=true).cutoff == 4
+    @test QuantumInterface.QuantumOpticsRepr(cutoff=4, lazy=true).lazy == true
+end
