@@ -1,6 +1,6 @@
 using Test
 using QuantumInterface: tensor, ⊗, ptrace, reduced, permutesystems, multiplicable
-using QuantumInterface: GenericBasis, CompositeBasis, NLevelBasis, FockBasis
+using QuantumInterface: GenericBasis, CompositeBasis, NLevelBasis, FockBasis, QuantumOpticsRepr
 
 @testset "basis" begin
 
@@ -55,12 +55,12 @@ comp2 = tensor(b2, b1, b3)
 end # testset
 
 @testset "representations" begin
-    @test QuantumInterface.QuantumOpticsRepr().cutoff == 2
-    @test QuantumInterface.QuantumOpticsRepr().lazy == false
-    @test QuantumInterface.QuantumOpticsRepr(5).cutoff == 5
-    @test QuantumInterface.QuantumOpticsRepr(5).lazy == false
-    @test QuantumInterface.QuantumOpticsRepr(lazy=true).cutoff == 2
-    @test QuantumInterface.QuantumOpticsRepr(lazy=true).lazy == true
-    @test QuantumInterface.QuantumOpticsRepr(cutoff=4, lazy=true).cutoff == 4
-    @test QuantumInterface.QuantumOpticsRepr(cutoff=4, lazy=true).lazy == true
+    @test QuantumOpticsRepr().cutoff == 2
+    @test QuantumOpticsRepr().lazy == false
+    @test QuantumOpticsRepr(5).cutoff == 5
+    @test QuantumOpticsRepr(5).lazy == false
+    @test QuantumOpticsRepr(lazy=true).cutoff == 2
+    @test QuantumOpticsRepr(lazy=true).lazy == true
+    @test QuantumOpticsRepr(cutoff=4, lazy=true).cutoff == 4
+    @test QuantumOpticsRepr(cutoff=4, lazy=true).lazy == true
 end
