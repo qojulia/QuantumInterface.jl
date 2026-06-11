@@ -1,5 +1,9 @@
 # News
 
+## [Unreleased]
+
+- Add `lazy` option to `QuantumOpticsRepr` for downstream lazy QuantumOptics conversions.
+
 ## v0.4.2 - 2025-11-29
 
 - Define `commutator` and `anticommutator`.
