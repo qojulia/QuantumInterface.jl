@@ -223,6 +223,11 @@ function ptrace(b::CompositeBasis, indices)
     reduced(b, J)
 end
 
+function ptrace(b::CompositeBasis{S,Tuple{B1,B2}}, index::Integer) where {S,B1,B2}
+    check_indices(2, index)
+    index == 1 ? b.bases[2] : b.bases[1]
+end
+
 
 """
     permutesystems(a, perm)
@@ -236,6 +241,13 @@ function permutesystems(b::CompositeBasis, perm)
     (nsubsystems(b) == length(perm)) || throw(ArgumentError("Must have nsubsystems(b) == length(perm) in permutesystems"))
     isperm(perm) || throw(ArgumentError("Must pass actual permeutation to permutesystems"))
     CompositeBasis(b.shape[perm], b.bases[perm])
+end
+
+function permutesystems(b::CompositeBasis{S,Tuple{B1,B2}}, perm::AbstractVector{<:Integer}) where {S,B1,B2}
+    (length(perm) == 2) || throw(ArgumentError("Must have nsubsystems(b) == length(perm) in permutesystems"))
+    isperm(perm) || throw(ArgumentError("Must pass actual permeutation to permutesystems"))
+    bases = first(perm) == 1 ? (b.bases[1], b.bases[2]) : (b.bases[2], b.bases[1])
+    CompositeBasis(b.shape[perm], bases)
 end
 
 
