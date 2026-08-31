@@ -1,8 +1,12 @@
 using Test
+import TensorCore
 using QuantumInterface: tensor, ⊗, ptrace, reduced, permutesystems, multiplicable
 using QuantumInterface: GenericBasis, CompositeBasis, NLevelBasis, FockBasis
 
 @testset "basis" begin
+
+@test tensor === TensorCore.tensor
+@test (⊗) === TensorCore.tensor
 
 shape1 = [5]
 shape2 = [2, 3]
