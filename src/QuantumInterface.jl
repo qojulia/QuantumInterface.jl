@@ -38,13 +38,12 @@ function ptrace end
 
 function reduced end
 
-"""
+@doc """
     tensor(x, y, z...)
 
 Tensor product of the given objects. Alternatively, the unicode
 symbol ⊗ (\\otimes) can be used.
-"""
-tensor() = throw(ArgumentError("Tensor function needs at least one argument."))
+""" tensor
 
 function tensor_pow end
 
