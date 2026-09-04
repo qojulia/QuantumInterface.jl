@@ -4,6 +4,7 @@ import Base: ==, +, -, *, /, ^, length, one, exp, conj, conj!, transpose
 import LinearAlgebra: tr, ishermitian, norm, normalize, normalize!
 import Base: show, summary
 import SparseArrays: sparse, spzeros, AbstractSparseMatrix # TODO move to an extension
+import TensorCore: tensor, ⊗
 
 function apply! end
 
@@ -36,16 +37,6 @@ function projectrand! end
 function ptrace end
 
 function reduced end
-
-"""
-    tensor(x, y, z...)
-
-Tensor product of the given objects. Alternatively, the unicode
-symbol ⊗ (\\otimes) can be used.
-"""
-function tensor end
-const ⊗ = tensor
-tensor() = throw(ArgumentError("Tensor function needs at least one argument."))
 
 function tensor_pow end
 

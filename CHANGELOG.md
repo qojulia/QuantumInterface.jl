@@ -1,5 +1,9 @@
 # News
 
+## v0.4.4 - 2026-08-31
+
+- Use TensorCore's shared `tensor` and `⊗` interface to avoid import conflicts and method piracy.
+
 ## v0.4.3 - 2026-08-21
 
 - Improve type inference for partial traces and subsystem permutations of bipartite composite bases.

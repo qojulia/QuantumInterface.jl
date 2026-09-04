@@ -91,7 +91,7 @@ function tensor(b1::Basis, b2::CompositeBasis)
     bases = (b1, b2.bases...)
     CompositeBasis(shape, bases)
 end
-tensor(bases::Basis...) = reduce(tensor, bases)
+tensor(basis::Basis, bases::Basis...) = reduce(tensor, (basis, bases...))
 
 Base.:^(b::Basis, N::Integer) = tensor_pow(b, N)
 
