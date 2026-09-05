@@ -17,6 +17,8 @@ jobs:
         pkg: [
           "qojulia/QuantumOpticsBase.jl",
           "qojulia/QuantumOptics.jl",
+          "qojulia/SecondQuantizedAlgebra.jl",
+          "QuantumSavory/Gabs.jl",
           "QuantumSavory/QuantumSymbolics.jl",
           "QuantumSavory/QuantumClifford.jl",
           "QuantumSavory/QuantumSavory.jl",
@@ -41,30 +43,48 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@v1
-
       # Breakage test
       - name: 'Breakage of ${{ matrix.pkg }}, ${{ matrix.pkgversion }} version'
         env:
           URL: ${{ matrix.pkg }}
           VERSION: ${{ matrix.pkgversion }}
         run: |
-          set -v
-          mkdir -p ./pr
-          echo "${{ github.event.number }}" > ./pr/NR
-          git clone https://github.com/$URL
-          export PKG=$(echo $URL | cut -f2 -d/)
-          cd $PKG
-          TAG=$VERSION
-          export TAG
-          julia -e 'using Pkg;
-            PKG, TAG, VERSION = ENV["PKG"], ENV["TAG"], ENV["VERSION"]
-            joburl = joinpath(ENV["GITHUB_SERVER_URL"], ENV["GITHUB_REPOSITORY"], "actions/runs", ENV["GITHUB_RUN_ID"])
-            open("../pr/$PKG-$VERSION", "w") do io
-                TAG == "no_tag" && error("No tag for $VERSION")
-                pkg"activate .";
-                pkg"instantiate";
-                pkg"dev ../";
-                pkg"build";
-                pkg"test";
-            end'
+          downstream="${RUNNER_TEMP}/downstream"
+          environment="${RUNNER_TEMP}/environment"
+          git clone "https://github.com/${URL}" "$downstream"
+          mkdir -p "$environment"
+          QI_PATH="$GITHUB_WORKSPACE" DOWNSTREAM_PATH="$downstream" \
+            julia --project="$environment" .github/scripts/test_downstream.jl
+
+  ecosystem-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: 1
+          arch: x64
+      - uses: actions/cache@v5
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-smoke-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-smoke-${{ env.cache-name }}-
+            ${{ runner.os }}-smoke-
+            ${{ runner.os }}-
+      - name: Check the shared tensor interface
+        run: |
+          downstreams="${RUNNER_TEMP}/downstreams"
+          environment="${RUNNER_TEMP}/environment"
+          mkdir -p "$downstreams" "$environment"
+          git clone https://github.com/qojulia/QuantumOpticsBase.jl "$downstreams/QuantumOpticsBase"
+          git clone https://github.com/qojulia/QuantumOptics.jl "$downstreams/QuantumOptics"
+          git clone https://github.com/qojulia/SecondQuantizedAlgebra.jl "$downstreams/SecondQuantizedAlgebra"
+          git clone https://github.com/QuantumSavory/Gabs.jl "$downstreams/Gabs"
+          git clone https://github.com/QuantumSavory/QuantumSymbolics.jl "$downstreams/QuantumSymbolics"
+          git clone https://github.com/QuantumSavory/QuantumClifford.jl "$downstreams/QuantumClifford"
+          git clone https://github.com/QuantumSavory/QuantumSavory.jl "$downstreams/QuantumSavory"
+          QI_PATH="$GITHUB_WORKSPACE" DOWNSTREAMS_PATH="$downstreams" \
+            julia --project="$environment" .github/scripts/ecosystem_smoke.jl
