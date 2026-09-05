@@ -4,6 +4,7 @@ Pkg.develop(path = ENV["QI_PATH"])
 for path in readdir(ENV["DOWNSTREAMS_PATH"]; join = true)
     Pkg.develop(path = path)
 end
+Pkg.add("TensorCore")
 
 modules = map((
     :QuantumInterface,
