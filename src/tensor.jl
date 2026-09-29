@@ -5,9 +5,9 @@ Tensor product ``\\hat{x}⊗\\hat{y}⊗\\hat{z}⊗…`` of the given operators.
 """
 tensor(a::AbstractOperator, b::AbstractOperator) = arithmetic_binary_error("Tensor product", a, b)
 tensor(op::AbstractOperator) = op
-tensor(operators::AbstractOperator...) = reduce(tensor, operators)
+tensor(op::AbstractOperator, operators::AbstractOperator...) = reduce(tensor, (op, operators...))
 tensor(state::StateVector) = state
-tensor(states::StateVector...) = reduce(tensor, states)
+tensor(state::StateVector, states::StateVector...) = reduce(tensor, (state, states...))
 tensor(states::Vector{T}) where T<:StateVector = reduce(tensor, states)
 
 """

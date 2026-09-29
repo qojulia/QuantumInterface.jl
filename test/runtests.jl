@@ -29,4 +29,4 @@ println("Starting tests with $(Threads.nthreads()) threads out of `Sys.CPU_THREA
 @doset "bases"
 #VERSION >= v"1.9" && @doset "doctests"
 get(ENV,"JET_TEST","")=="true" && @doset "jet"
-VERSION >= v"1.9" && @doset "aqua"
+VERSION >= v"1.9" && get(ENV, "QUANTUMSAVORY_DOWNGRADE_TEST", "") != "true" && @doset "aqua"

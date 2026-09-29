@@ -1,8 +1,12 @@
 using Test
+import TensorCore
 using QuantumInterface: tensor, ⊗, ptrace, reduced, permutesystems, multiplicable
 using QuantumInterface: GenericBasis, CompositeBasis, NLevelBasis, FockBasis
 
 @testset "basis" begin
+
+@test tensor === TensorCore.tensor
+@test (⊗) === TensorCore.tensor
 
 shape1 = [5]
 shape2 = [2, 3]
@@ -34,7 +38,7 @@ comp_b1_b2 = tensor(comp_b1, comp_b2)
 @test comp_b1_b2.shape == [prod(shape1), prod(shape2), prod(shape1), prod(shape1), prod(shape2)]
 @test comp_b1_b2 == CompositeBasis(b1, b2, b1, b1, b2)
 
-@test_throws ArgumentError tensor()
+@test !applicable(tensor)
 @test comp_b2.shape == tensor(b1, comp_b1).shape
 @test comp_b2 == tensor(b1, comp_b1)
 
@@ -45,9 +49,25 @@ comp_b1_b2 = tensor(comp_b1, comp_b2)
 @test ptrace(comp_b2, [2, 3]) == reduced(comp_b2, [1])
 @test_throws ArgumentError reduced(comp_b1, [])
 
+b_left = NLevelBasis(2)
+b_right = FockBasis(2)
+bipartite = tensor(b_left, b_right)
+@test @inferred(typeof(b_left), ptrace(bipartite, 1)) === b_right
+@test @inferred(typeof(b_right), ptrace(bipartite, 2)) === b_left
+@test_throws ArgumentError ptrace(bipartite, 0)
+@test_throws ArgumentError ptrace(bipartite, 3)
+
 comp1 = tensor(b1, b2, b3)
 comp2 = tensor(b2, b1, b3)
 @test permutesystems(comp1, [2,1,3]) == comp2
+
+bipartite_swapped = tensor(b_right, b_left)
+@test @inferred(typeof(bipartite_swapped), permutesystems(bipartite, [1, 2])) == bipartite
+@test @inferred(typeof(bipartite), permutesystems(bipartite, [2, 1])) == bipartite_swapped
+@test permutesystems(bipartite, Int8[2, 1]) == bipartite_swapped
+@test_throws ArgumentError permutesystems(bipartite, [1])
+@test_throws ArgumentError permutesystems(bipartite, [1, 1])
+@test_throws ArgumentError permutesystems(bipartite, [1, 3])
 
 @test [b1, b2] != [b1, b3]
 @test !multiplicable(comp1, b1 ⊗ b2 ⊗ NLevelBasis(prod(b3.shape)))
